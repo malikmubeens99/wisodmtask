@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Admin Command Center | Team Delegation Portal</title>
+  <title>Admin Command Center | Hands-Free Broadcast Automation</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <style>
@@ -29,7 +29,7 @@
               <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span> Firebase Live Sync
             </span>
           </div>
-          <p class="text-xs text-slate-400">Real-time Outreach & Automated Dispatch Center</p>
+          <p class="text-xs text-slate-400">Real-time Outreach & Hands-Free Auto Broadcast</p>
         </div>
       </div>
       <div id="adminNavActions" class="hidden flex items-center space-x-2">
@@ -53,7 +53,7 @@
           🔒
         </div>
         <h2 class="text-xl font-bold text-white">Admin Security Access</h2>
-        <p class="text-xs text-slate-400 mt-1 mb-6">Enter master passcode to unlock live team analytics & automated broadcast tools.</p>
+        <p class="text-xs text-slate-400 mt-1 mb-6">Enter master passcode to unlock live analytics & auto-broadcast.</p>
         
         <form onsubmit="handleAdminAuth(event)" class="space-y-4">
           <input
@@ -110,30 +110,41 @@
         </div>
       </div>
 
-      <!-- AUTOMATED BULK BROADCAST DISPATCHER -->
-      <div class="bg-gradient-to-br from-slate-900 via-slate-900 to-indigo-950/50 border border-indigo-500/30 rounded-2xl p-6 shadow-xl space-y-4">
+      <!-- HANDS-FREE AUTOMATED BROADCAST ENGINE -->
+      <div class="bg-gradient-to-br from-slate-900 via-slate-900 to-indigo-950/50 border border-indigo-500/30 rounded-2xl p-6 shadow-xl space-y-5">
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800 pb-3">
           <div class="flex items-center space-x-2.5">
-            <div class="w-8 h-8 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold">🚀</div>
+            <div class="w-9 h-9 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold text-lg">🚀</div>
             <div>
-              <h3 class="font-bold text-white text-base">Automated Broadcast Dispatcher</h3>
-              <p class="text-xs text-slate-400">Select all karein aur ek click se automated queue start karein.</p>
+              <h3 class="font-bold text-white text-base flex items-center gap-2">
+                Hands-Free WhatsApp Automation
+                <span class="text-[10px] bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded-full border border-emerald-500/30 font-semibold uppercase">Auto Loop</span>
+              </h3>
+              <p class="text-xs text-slate-400">Start dabayein, system timer ke sath 1-by-1 automatically har member ka chat open karega.</p>
             </div>
           </div>
-          <div class="flex items-center space-x-2">
+          <div class="flex items-center space-x-2.5">
+            <div class="flex items-center space-x-1.5 bg-slate-950 border border-slate-700 px-3 py-1.5 rounded-xl">
+              <span class="text-xs text-slate-400 font-medium">Delay:</span>
+              <select id="autoDelaySelect" class="bg-transparent text-xs text-amber-300 font-bold focus:outline-none cursor-pointer">
+                <option value="3" class="bg-slate-900">3 Seconds</option>
+                <option value="4" selected class="bg-slate-900">4 Seconds</option>
+                <option value="6" class="bg-slate-900">6 Seconds</option>
+              </select>
+            </div>
             <button
               onclick="toggleSelectAllMembers()"
               id="btnSelectAllToggle"
-              class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-slate-200 transition border border-slate-700"
+              class="px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-slate-200 transition border border-slate-700"
             >
               Deselect All
             </button>
             <button
-              onclick="startBulkBroadcastRunner()"
-              class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white text-xs font-bold transition shadow-lg shadow-emerald-600/30 flex items-center space-x-1.5"
+              onclick="startHandsFreeRunner()"
+              class="px-4 py-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 active:scale-95 text-white text-xs font-bold transition shadow-lg shadow-emerald-600/30 flex items-center space-x-1.5"
             >
-              <span>▶ Start Auto Broadcast</span>
-              <span id="selectedBadgeCount" class="bg-emerald-950/80 px-1.5 py-0.5 rounded text-[10px] text-emerald-200">28</span>
+              <span>⚡ Start Auto Send</span>
+              <span id="selectedBadgeCount" class="bg-emerald-950/80 px-2 py-0.5 rounded-full text-[10px] text-emerald-200">28</span>
             </button>
           </div>
         </div>
@@ -158,8 +169,8 @@ Shukriya!</textarea>
         <!-- Members Selection Grid -->
         <div>
           <div class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-2 flex items-center justify-between">
-            <span>Recipient Queue (Click to include/exclude):</span>
-            <span class="text-slate-500 lowercase font-normal">checked members will receive the message</span>
+            <span>Recipient Queue (28 Members):</span>
+            <span class="text-slate-500 lowercase font-normal">Checked members will receive auto-messages</span>
           </div>
           <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7 gap-2" id="memberCheckboxGrid"></div>
         </div>
@@ -256,16 +267,29 @@ Shukriya!</textarea>
 
   </main>
 
-  <!-- AUTO BROADCAST RUNNER MODAL -->
-  <div id="runnerModal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-    <div class="bg-slate-900 border border-slate-700 rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl space-y-6 text-center">
-      <div class="w-16 h-16 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 rounded-2xl flex items-center justify-center mx-auto text-3xl animate-bounce">
-        💬
+  <!-- HANDS-FREE AUTOMATED RUNNER MODAL -->
+  <div id="runnerModal" class="hidden fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-700 rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl space-y-6 text-center relative overflow-hidden">
+      
+      <!-- Top Progress Bar -->
+      <div class="absolute top-0 left-0 right-0 h-1.5 bg-slate-800">
+        <div id="modalProgressBar" class="h-full bg-gradient-to-r from-emerald-500 to-cyan-500 transition-all duration-300 w-0"></div>
       </div>
+
+      <!-- Animated Status Icon -->
+      <div class="w-16 h-16 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 rounded-2xl flex items-center justify-center mx-auto text-3xl">
+        <span id="runnerIconAnim" class="animate-pulse">⚡</span>
+      </div>
+
       <div>
-        <span id="runnerStepBadge" class="text-xs font-bold px-3 py-1 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">
-          Sending 1 of 28
-        </span>
+        <div class="flex items-center justify-center gap-2">
+          <span id="runnerStepBadge" class="text-xs font-bold px-3 py-1 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 font-mono">
+            Sending 1 of 28
+          </span>
+          <span id="autoTimerBadge" class="text-xs font-bold px-2.5 py-1 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30 font-mono">
+            Next in 4s...
+          </span>
+        </div>
         <h3 id="runnerMemberName" class="text-xl font-bold text-white mt-3">Member Name</h3>
         <p id="runnerMemberPhone" class="text-xs text-slate-400 font-mono mt-0.5">0300XXXXXXX</p>
       </div>
@@ -275,36 +299,37 @@ Shukriya!</textarea>
         <p id="runnerMessagePreview" class="text-xs text-slate-300 line-clamp-3 font-mono"></p>
       </div>
 
-      <!-- Action Controls -->
-      <div class="space-y-3">
-        <button
-          onclick="triggerCurrentQueueSend()"
-          class="w-full py-3.5 px-4 bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white font-bold rounded-xl text-sm transition shadow-lg shadow-emerald-600/30 flex items-center justify-center space-x-2"
-        >
-          <span>Open WhatsApp & Send</span>
-          <span>↗</span>
-        </button>
-
+      <!-- Action & Automation Controls -->
+      <div class="space-y-2.5">
         <div class="flex items-center space-x-2">
           <button
-            onclick="skipCurrentQueueMember()"
-            class="flex-1 py-2.5 px-3 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs font-semibold transition"
+            id="btnPauseResume"
+            onclick="togglePauseResume()"
+            class="flex-1 py-3 px-3 bg-amber-600 hover:bg-amber-500 active:scale-95 text-slate-950 font-bold rounded-xl text-xs transition flex items-center justify-center space-x-1"
           >
-            Skip Next ⏭
+            <span>⏸ Pause Auto Loop</span>
           </button>
           <button
-            onclick="closeRunnerModal()"
-            class="flex-1 py-2.5 px-3 bg-red-950/40 hover:bg-red-900/60 border border-red-800/60 text-red-300 rounded-xl text-xs font-semibold transition"
+            onclick="sendNextImmediately()"
+            class="py-3 px-4 bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold rounded-xl text-xs transition"
           >
-            Cancel Broadcast
+            Skip/Send Now ⏭
           </button>
         </div>
+
+        <button
+          onclick="stopHandsFreeRunner()"
+          class="w-full py-2.5 px-3 bg-red-950/40 hover:bg-red-900/60 border border-red-800/60 text-red-300 rounded-xl text-xs font-semibold transition"
+        >
+          Stop Automation & Close
+        </button>
       </div>
+
     </div>
   </div>
 
   <footer class="border-t border-slate-800/60 py-4 text-center text-xs text-slate-500">
-    Master Administration & Delegation Portal • Automated Broadcast Engine
+    Master Administration & Delegation Portal • Hands-Free Auto Broadcast Active
   </footer>
 
   <!-- Firebase Modular Setup -->
@@ -326,7 +351,7 @@ Shukriya!</textarea>
     const db = getFirestore(app);
 
     const ADMIN_PIN = "1234";
-    const GOOGLE_FORM_URL = "https://docs.google.com/forms/d/e/1FAIpQLScP_729Z0g5_qf7jYyE_example/viewform";
+    const GOOGLE_FORM_URL = "https://forms.gle/eqTVvBp5wfYY8jo56";
     const VERIFIED_MEMBERS = [
       { "phone": "03154222065", "name": "Ubaid Ur Rehman" },
       { "phone": "03004412807", "name": "Abdullah Jamil" },
@@ -485,16 +510,19 @@ Shukriya!</textarea>
     function formatWaLink(num, name) {
       let cleaned = num.toString().replace(/[^0-9]/g, "");
       if (cleaned.startsWith("0")) cleaned = "92" + cleaned.slice(1);
-      const msg = `Assalamu Alaikum ${name},\n\nHamari team records update ho rahe hain. Please 2 minute nikal kar ye official form fill kar dein taake aapka data record mein ajaye:\n\n👉 Form Link: ${GOOGLE_FORM_URL}\n\nFill karne ke baad yahan reply zaroor karein. Shukriya!`;
+      const msg = `Assalamu Alaikum ,I'm from Wisdom Hope Foundation Hamari team records update ho rahe hain. Please 2 minute nikal kar ye official form fill kar dein taake aapka data record mein ajaye or official Card apka issue kia ja sakay:👉 Form Link: ${GOOGLE_FORM_URL} Fill karne ke baad yahan reply zaroor karein. Shukriya!`;
       return `https://wa.me/${cleaned}?text=${encodeURIComponent(msg)}`;
     }
 
     // ==========================================
-    // AUTO BROADCAST ENGINE
+    // HANDS-FREE AUTOMATED BROADCAST RUNNER
     // ==========================================
     let selectedMemberPhones = new Set(VERIFIED_MEMBERS.map(m => cleanPhone(m.phone)));
     let activeQueue = [];
     let currentQueueIdx = 0;
+    let autoTimerInterval = null;
+    let secondsLeft = 4;
+    let isPaused = false;
 
     window.toggleSelectAllMembers = function() {
       const btn = document.getElementById("btnSelectAllToggle");
@@ -551,21 +579,24 @@ Shukriya!</textarea>
       btn.textContent = selectedMemberPhones.size === VERIFIED_MEMBERS.length ? "Deselect All" : "Select All";
     }
 
-    window.startBulkBroadcastRunner = function() {
+    window.startHandsFreeRunner = function() {
       activeQueue = VERIFIED_MEMBERS.filter(m => selectedMemberPhones.has(cleanPhone(m.phone)));
       if (activeQueue.length === 0) {
         alert("Please pehle kam az kam ek member select karein!");
         return;
       }
       currentQueueIdx = 0;
-      showRunnerStep();
+      isPaused = false;
       document.getElementById("runnerModal").classList.remove("hidden");
+      document.getElementById("btnPauseResume").innerHTML = "<span>⏸ Pause Auto Loop</span>";
+      
+      executeAutoStep();
     };
 
-    function showRunnerStep() {
+    function executeAutoStep() {
       if (currentQueueIdx >= activeQueue.length) {
-        closeRunnerModal();
-        alert("🎉 Tamam selected members ko broadcast queue complete ho gayi!");
+        stopHandsFreeRunner();
+        alert("🎉 All selected members messages dispatched successfully!");
         return;
       }
 
@@ -573,33 +604,65 @@ Shukriya!</textarea>
       const rawText = document.getElementById("broadcastCustomText").value;
       const personalized = rawText.replace(/{name}/g, member.name);
 
+      // Update UI elements
       document.getElementById("runnerStepBadge").textContent = `Sending ${currentQueueIdx + 1} of ${activeQueue.length}`;
       document.getElementById("runnerMemberName").textContent = member.name;
       document.getElementById("runnerMemberPhone").textContent = member.phone;
       document.getElementById("runnerMessagePreview").textContent = personalized;
-    }
 
-    window.triggerCurrentQueueSend = function() {
-      const member = activeQueue[currentQueueIdx];
-      const rawText = document.getElementById("broadcastCustomText").value;
-      const personalized = rawText.replace(/{name}/g, member.name);
+      const progressPct = Math.round(((currentQueueIdx + 1) / activeQueue.length) * 100);
+      document.getElementById("modalProgressBar").style.width = progressPct + "%";
 
+      // Open WhatsApp automatically for the current person in a named target window
       let phoneClean = cleanPhone(member.phone);
       if (phoneClean.startsWith("0")) phoneClean = "92" + phoneClean.slice(1);
-
       const url = `https://wa.me/${phoneClean}?text=${encodeURIComponent(personalized)}`;
-      window.open(url, "_blank");
+      window.open(url, "WhatsAppAutoBroadcastWindow");
 
-      currentQueueIdx++;
-      showRunnerStep();
+      // Start Countdown for next automatic dispatch
+      const selectedDelay = parseInt(document.getElementById("autoDelaySelect").value) || 4;
+      secondsLeft = selectedDelay;
+      document.getElementById("autoTimerBadge").textContent = `Next in ${secondsLeft}s...`;
+
+      clearInterval(autoTimerInterval);
+      autoTimerInterval = setInterval(() => {
+        if (!isPaused) {
+          secondsLeft--;
+          if (secondsLeft > 0) {
+            document.getElementById("autoTimerBadge").textContent = `Next in ${secondsLeft}s...`;
+          } else {
+            clearInterval(autoTimerInterval);
+            currentQueueIdx++;
+            executeAutoStep();
+          }
+        }
+      }, 1000);
+    }
+
+    window.togglePauseResume = function() {
+      isPaused = !isPaused;
+      const btn = document.getElementById("btnPauseResume");
+      const timerBadge = document.getElementById("autoTimerBadge");
+      
+      if (isPaused) {
+        btn.innerHTML = "<span>▶ Resume Auto Loop</span>";
+        timerBadge.textContent = "Paused";
+        timerBadge.className = "text-xs font-bold px-2.5 py-1 rounded-full bg-red-500/20 text-red-300 border border-red-500/30 font-mono";
+      } else {
+        btn.innerHTML = "<span>⏸ Pause Auto Loop</span>";
+        timerBadge.textContent = `Next in ${secondsLeft}s...`;
+        timerBadge.className = "text-xs font-bold px-2.5 py-1 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30 font-mono";
+      }
     };
 
-    window.skipCurrentQueueMember = function() {
+    window.sendNextImmediately = function() {
+      clearInterval(autoTimerInterval);
       currentQueueIdx++;
-      showRunnerStep();
+      executeAutoStep();
     };
 
-    window.closeRunnerModal = function() {
+    window.stopHandsFreeRunner = function() {
+      clearInterval(autoTimerInterval);
       document.getElementById("runnerModal").classList.add("hidden");
     };
 
