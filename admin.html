@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Admin Command Center | Hands-Free Broadcast Automation</title>
+  <title>Admin Command Center | Turbo Broadcast Engine</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <style>
@@ -29,7 +29,7 @@
               <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span> Firebase Live Sync
             </span>
           </div>
-          <p class="text-xs text-slate-400">Real-time Outreach & Hands-Free Auto Broadcast</p>
+          <p class="text-xs text-slate-400">Turbo Broadcast Runner • 100% Reliable</p>
         </div>
       </div>
       <div id="adminNavActions" class="hidden flex items-center space-x-2">
@@ -53,7 +53,7 @@
           🔒
         </div>
         <h2 class="text-xl font-bold text-white">Admin Security Access</h2>
-        <p class="text-xs text-slate-400 mt-1 mb-6">Enter master passcode to unlock live analytics & auto-broadcast.</p>
+        <p class="text-xs text-slate-400 mt-1 mb-6">Enter master passcode to unlock live analytics & broadcast tools.</p>
         
         <form onsubmit="handleAdminAuth(event)" class="space-y-4">
           <input
@@ -110,28 +110,20 @@
         </div>
       </div>
 
-      <!-- HANDS-FREE AUTOMATED BROADCAST ENGINE -->
+      <!-- TURBO BROADCAST DISPATCHER -->
       <div class="bg-gradient-to-br from-slate-900 via-slate-900 to-indigo-950/50 border border-indigo-500/30 rounded-2xl p-6 shadow-xl space-y-5">
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800 pb-3">
           <div class="flex items-center space-x-2.5">
-            <div class="w-9 h-9 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold text-lg">🚀</div>
+            <div class="w-9 h-9 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold text-lg">⚡</div>
             <div>
               <h3 class="font-bold text-white text-base flex items-center gap-2">
-                Hands-Free WhatsApp Automation
-                <span class="text-[10px] bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded-full border border-emerald-500/30 font-semibold uppercase">Auto Loop</span>
+                Turbo Broadcast Dispatcher
+                <span class="text-[10px] bg-indigo-500/20 text-indigo-300 px-2 py-0.5 rounded-full border border-indigo-500/30 font-semibold uppercase">Pop-up Block Free</span>
               </h3>
-              <p class="text-xs text-slate-400">Start dabayein, system timer ke sath 1-by-1 automatically har member ka chat open karega.</p>
+              <p class="text-xs text-slate-400">Pehle template edit karein, phir Start dabate hi 1-Click / Spacebar se foran messages bhejte jayein.</p>
             </div>
           </div>
           <div class="flex items-center space-x-2.5">
-            <div class="flex items-center space-x-1.5 bg-slate-950 border border-slate-700 px-3 py-1.5 rounded-xl">
-              <span class="text-xs text-slate-400 font-medium">Delay:</span>
-              <select id="autoDelaySelect" class="bg-transparent text-xs text-amber-300 font-bold focus:outline-none cursor-pointer">
-                <option value="3" class="bg-slate-900">3 Seconds</option>
-                <option value="4" selected class="bg-slate-900">4 Seconds</option>
-                <option value="6" class="bg-slate-900">6 Seconds</option>
-              </select>
-            </div>
             <button
               onclick="toggleSelectAllMembers()"
               id="btnSelectAllToggle"
@@ -140,11 +132,11 @@
               Deselect All
             </button>
             <button
-              onclick="startHandsFreeRunner()"
-              class="px-4 py-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 active:scale-95 text-white text-xs font-bold transition shadow-lg shadow-emerald-600/30 flex items-center space-x-1.5"
+              onclick="startTurboRunner()"
+              class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 active:scale-95 text-white text-xs font-bold transition shadow-lg shadow-emerald-600/30 flex items-center space-x-2"
             >
-              <span>⚡ Start Auto Send</span>
-              <span id="selectedBadgeCount" class="bg-emerald-950/80 px-2 py-0.5 rounded-full text-[10px] text-emerald-200">28</span>
+              <span>🚀 Launch Turbo Broadcast</span>
+              <span id="selectedBadgeCount" class="bg-emerald-950/90 px-2 py-0.5 rounded-full text-[10px] text-emerald-200">28</span>
             </button>
           </div>
         </div>
@@ -169,8 +161,8 @@ Shukriya!</textarea>
         <!-- Members Selection Grid -->
         <div>
           <div class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-2 flex items-center justify-between">
-            <span>Recipient Queue (28 Members):</span>
-            <span class="text-slate-500 lowercase font-normal">Checked members will receive auto-messages</span>
+            <span>Recipient Queue:</span>
+            <span class="text-slate-500 lowercase font-normal">Checked members will be included in the broadcast</span>
           </div>
           <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7 gap-2" id="memberCheckboxGrid"></div>
         </div>
@@ -267,69 +259,67 @@ Shukriya!</textarea>
 
   </main>
 
-  <!-- HANDS-FREE AUTOMATED RUNNER MODAL -->
-  <div id="runnerModal" class="hidden fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4">
+  <!-- TURBO RUNNER MODAL -->
+  <div id="turboModal" class="hidden fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4">
     <div class="bg-slate-900 border border-slate-700 rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl space-y-6 text-center relative overflow-hidden">
       
       <!-- Top Progress Bar -->
       <div class="absolute top-0 left-0 right-0 h-1.5 bg-slate-800">
-        <div id="modalProgressBar" class="h-full bg-gradient-to-r from-emerald-500 to-cyan-500 transition-all duration-300 w-0"></div>
+        <div id="turboModalProgressBar" class="h-full bg-gradient-to-r from-emerald-500 to-cyan-500 transition-all duration-300 w-0"></div>
       </div>
 
-      <!-- Animated Status Icon -->
+      <!-- Icon -->
       <div class="w-16 h-16 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 rounded-2xl flex items-center justify-center mx-auto text-3xl">
-        <span id="runnerIconAnim" class="animate-pulse">⚡</span>
+        💬
       </div>
 
       <div>
-        <div class="flex items-center justify-center gap-2">
-          <span id="runnerStepBadge" class="text-xs font-bold px-3 py-1 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 font-mono">
-            Sending 1 of 28
-          </span>
-          <span id="autoTimerBadge" class="text-xs font-bold px-2.5 py-1 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30 font-mono">
-            Next in 4s...
-          </span>
-        </div>
-        <h3 id="runnerMemberName" class="text-xl font-bold text-white mt-3">Member Name</h3>
-        <p id="runnerMemberPhone" class="text-xs text-slate-400 font-mono mt-0.5">0300XXXXXXX</p>
+        <span id="turboStepBadge" class="text-xs font-bold px-3 py-1 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 font-mono">
+          Sending 1 of 28
+        </span>
+        <h3 id="turboMemberName" class="text-xl font-bold text-white mt-3">Member Name</h3>
+        <p id="turboMemberPhone" class="text-xs text-slate-400 font-mono mt-0.5">0300XXXXXXX</p>
       </div>
 
       <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 text-left">
         <div class="text-[10px] text-slate-500 font-bold uppercase tracking-wider mb-1">Message Preview:</div>
-        <p id="runnerMessagePreview" class="text-xs text-slate-300 line-clamp-3 font-mono"></p>
+        <p id="turboMessagePreview" class="text-xs text-slate-300 line-clamp-3 font-mono"></p>
       </div>
 
-      <!-- Action & Automation Controls -->
+      <!-- Turbo Action Controls -->
       <div class="space-y-2.5">
+        <a
+          id="turboSendLinkBtn"
+          href="#"
+          target="_blank"
+          onclick="handleTurboSendAndNext()"
+          class="w-full py-4 px-4 bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white font-bold rounded-2xl text-sm transition shadow-lg shadow-emerald-600/30 flex items-center justify-center space-x-2 border border-emerald-400/30"
+        >
+          <span>Open Chat & Go Next ⏭</span>
+          <span class="text-[10px] bg-emerald-950 px-2 py-0.5 rounded text-emerald-200 uppercase font-mono">Spacebar</span>
+        </a>
+
         <div class="flex items-center space-x-2">
           <button
-            id="btnPauseResume"
-            onclick="togglePauseResume()"
-            class="flex-1 py-3 px-3 bg-amber-600 hover:bg-amber-500 active:scale-95 text-slate-950 font-bold rounded-xl text-xs transition flex items-center justify-center space-x-1"
+            onclick="skipTurboMember()"
+            class="flex-1 py-2.5 px-3 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs font-semibold transition"
           >
-            <span>⏸ Pause Auto Loop</span>
+            Skip Person ⏭
           </button>
           <button
-            onclick="sendNextImmediately()"
-            class="py-3 px-4 bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold rounded-xl text-xs transition"
+            onclick="closeTurboModal()"
+            class="flex-1 py-2.5 px-3 bg-red-950/40 hover:bg-red-900/60 border border-red-800/60 text-red-300 rounded-xl text-xs font-semibold transition"
           >
-            Skip/Send Now ⏭
+            Close Runner
           </button>
         </div>
-
-        <button
-          onclick="stopHandsFreeRunner()"
-          class="w-full py-2.5 px-3 bg-red-950/40 hover:bg-red-900/60 border border-red-800/60 text-red-300 rounded-xl text-xs font-semibold transition"
-        >
-          Stop Automation & Close
-        </button>
       </div>
 
     </div>
   </div>
 
   <footer class="border-t border-slate-800/60 py-4 text-center text-xs text-slate-500">
-    Master Administration & Delegation Portal • Hands-Free Auto Broadcast Active
+    Master Administration & Delegation Portal • Turbo Engine
   </footer>
 
   <!-- Firebase Modular Setup -->
@@ -515,14 +505,11 @@ Shukriya!</textarea>
     }
 
     // ==========================================
-    // HANDS-FREE AUTOMATED BROADCAST RUNNER
+    // TURBO BROADCAST RUNNER ENGINE
     // ==========================================
     let selectedMemberPhones = new Set(VERIFIED_MEMBERS.map(m => cleanPhone(m.phone)));
     let activeQueue = [];
     let currentQueueIdx = 0;
-    let autoTimerInterval = null;
-    let secondsLeft = 4;
-    let isPaused = false;
 
     window.toggleSelectAllMembers = function() {
       const btn = document.getElementById("btnSelectAllToggle");
@@ -579,24 +566,21 @@ Shukriya!</textarea>
       btn.textContent = selectedMemberPhones.size === VERIFIED_MEMBERS.length ? "Deselect All" : "Select All";
     }
 
-    window.startHandsFreeRunner = function() {
+    window.startTurboRunner = function() {
       activeQueue = VERIFIED_MEMBERS.filter(m => selectedMemberPhones.has(cleanPhone(m.phone)));
       if (activeQueue.length === 0) {
         alert("Please pehle kam az kam ek member select karein!");
         return;
       }
       currentQueueIdx = 0;
-      isPaused = false;
-      document.getElementById("runnerModal").classList.remove("hidden");
-      document.getElementById("btnPauseResume").innerHTML = "<span>⏸ Pause Auto Loop</span>";
-      
-      executeAutoStep();
+      document.getElementById("turboModal").classList.remove("hidden");
+      renderTurboStep();
     };
 
-    function executeAutoStep() {
+    function renderTurboStep() {
       if (currentQueueIdx >= activeQueue.length) {
-        stopHandsFreeRunner();
-        alert("🎉 All selected members messages dispatched successfully!");
+        closeTurboModal();
+        alert("🎉 Tamam members ko messages successfully open ho gaye!");
         return;
       }
 
@@ -604,67 +588,49 @@ Shukriya!</textarea>
       const rawText = document.getElementById("broadcastCustomText").value;
       const personalized = rawText.replace(/{name}/g, member.name);
 
-      // Update UI elements
-      document.getElementById("runnerStepBadge").textContent = `Sending ${currentQueueIdx + 1} of ${activeQueue.length}`;
-      document.getElementById("runnerMemberName").textContent = member.name;
-      document.getElementById("runnerMemberPhone").textContent = member.phone;
-      document.getElementById("runnerMessagePreview").textContent = personalized;
-
-      const progressPct = Math.round(((currentQueueIdx + 1) / activeQueue.length) * 100);
-      document.getElementById("modalProgressBar").style.width = progressPct + "%";
-
-      // Open WhatsApp automatically for the current person in a named target window
       let phoneClean = cleanPhone(member.phone);
       if (phoneClean.startsWith("0")) phoneClean = "92" + phoneClean.slice(1);
       const url = `https://wa.me/${phoneClean}?text=${encodeURIComponent(personalized)}`;
-      window.open(url, "WhatsAppAutoBroadcastWindow");
 
-      // Start Countdown for next automatic dispatch
-      const selectedDelay = parseInt(document.getElementById("autoDelaySelect").value) || 4;
-      secondsLeft = selectedDelay;
-      document.getElementById("autoTimerBadge").textContent = `Next in ${secondsLeft}s...`;
+      // Update UI
+      document.getElementById("turboStepBadge").textContent = `Ready ${currentQueueIdx + 1} of ${activeQueue.length}`;
+      document.getElementById("turboMemberName").textContent = member.name;
+      document.getElementById("turboMemberPhone").textContent = member.phone;
+      document.getElementById("turboMessagePreview").textContent = personalized;
+      document.getElementById("turboSendLinkBtn").href = url;
 
-      clearInterval(autoTimerInterval);
-      autoTimerInterval = setInterval(() => {
-        if (!isPaused) {
-          secondsLeft--;
-          if (secondsLeft > 0) {
-            document.getElementById("autoTimerBadge").textContent = `Next in ${secondsLeft}s...`;
-          } else {
-            clearInterval(autoTimerInterval);
-            currentQueueIdx++;
-            executeAutoStep();
-          }
-        }
-      }, 1000);
+      const progressPct = Math.round(((currentQueueIdx + 1) / activeQueue.length) * 100);
+      document.getElementById("turboModalProgressBar").style.width = progressPct + "%";
     }
 
-    window.togglePauseResume = function() {
-      isPaused = !isPaused;
-      const btn = document.getElementById("btnPauseResume");
-      const timerBadge = document.getElementById("autoTimerBadge");
-      
-      if (isPaused) {
-        btn.innerHTML = "<span>▶ Resume Auto Loop</span>";
-        timerBadge.textContent = "Paused";
-        timerBadge.className = "text-xs font-bold px-2.5 py-1 rounded-full bg-red-500/20 text-red-300 border border-red-500/30 font-mono";
-      } else {
-        btn.innerHTML = "<span>⏸ Pause Auto Loop</span>";
-        timerBadge.textContent = `Next in ${secondsLeft}s...`;
-        timerBadge.className = "text-xs font-bold px-2.5 py-1 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30 font-mono";
-      }
+    window.handleTurboSendAndNext = function() {
+      setTimeout(() => {
+        currentQueueIdx++;
+        renderTurboStep();
+      }, 100);
     };
 
-    window.sendNextImmediately = function() {
-      clearInterval(autoTimerInterval);
+    window.skipTurboMember = function() {
       currentQueueIdx++;
-      executeAutoStep();
+      renderTurboStep();
     };
 
-    window.stopHandsFreeRunner = function() {
-      clearInterval(autoTimerInterval);
-      document.getElementById("runnerModal").classList.add("hidden");
+    window.closeTurboModal = function() {
+      document.getElementById("turboModal").classList.add("hidden");
     };
+
+    // Keyboard Spacebar Shortcut Handler
+    document.addEventListener("keydown", (e) => {
+      const modal = document.getElementById("turboModal");
+      if (modal && !modal.classList.contains("hidden") && e.code === "Space") {
+        e.preventDefault();
+        const sendBtn = document.getElementById("turboSendLinkBtn");
+        if (sendBtn) {
+          window.open(sendBtn.href, "_blank");
+          handleTurboSendAndNext();
+        }
+      }
+    });
 
     // Auth & Navigation Handlers
     window.handleAdminAuth = function(e) {
