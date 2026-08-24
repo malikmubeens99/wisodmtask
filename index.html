@@ -279,7 +279,7 @@
     function formatWaLink(num, name) {
       let cleaned = num.toString().replace(/[^0-9]/g, "");
       if (cleaned.startsWith("0")) cleaned = "92" + cleaned.slice(1);
-      const msg = `Assalamu Alaikum ${name},\n\nHamari team records update ho rahe hain. Please 2 minute nikal kar ye official form fill kar dein taake aapka data record mein ajaye:\n\n👉 Form Link: ${GOOGLE_FORM_URL}\n\nFill karne ke baad yahan reply zaroor karein. Shukriya!`;
+      const msg = `Assalamu Alaikum ,\n\n I'm from Wisdom Hope Foundation ,\n\nHamari team records update ho rahe hain. Please 2 minute nikal kar ye official form fill kar dein taake aapka data record mein ajaye or official Card apka issue kia ja sakay:\n\n👉 Form Link: ${https://forms.gle/eqTVvBp5wfYY8jo56}\n\nFill karne ke baad yahan reply zaroor karein. Shukriya!`;
       return `https://wa.me/${cleaned}?text=${encodeURIComponent(msg)}`;
     }
 
