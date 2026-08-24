@@ -1,0 +1,828 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Command Center | Team Delegation Portal</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    body { font-family: 'Plus Jakarta Sans', sans-serif; }
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #0f172a; }
+    ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+  </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col justify-between">
+
+  <!-- Admin Navbar -->
+  <header class="border-b border-slate-800 bg-slate-900/90 backdrop-blur sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between">
+      <div class="flex items-center space-x-3">
+        <div class="w-10 h-10 rounded-xl bg-amber-500 text-slate-950 flex items-center justify-center font-black text-lg shadow-lg shadow-amber-500/20">
+          ⚡
+        </div>
+        <div>
+          <div class="flex items-center space-x-2">
+            <h1 class="font-bold text-base sm:text-lg text-white">Master Admin Portal</h1>
+            <span class="text-[10px] bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 px-2 py-0.5 rounded-full font-bold uppercase tracking-wider flex items-center gap-1">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span> Firebase Live Sync
+            </span>
+          </div>
+          <p class="text-xs text-slate-400">Real-time Outreach & Automated Dispatch Center</p>
+        </div>
+      </div>
+      <div id="adminNavActions" class="hidden flex items-center space-x-2">
+        <button onclick="copyGroupReport()" class="text-xs px-3.5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-medium transition flex items-center space-x-1.5 shadow-md shadow-indigo-600/20">
+          <span>📋 Copy Broadcast Summary</span>
+        </button>
+        <button onclick="adminLogout()" class="text-xs px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 transition">
+          Lock Portal
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 py-8 w-full flex-grow">
+    
+    <!-- PIN Auth Screen -->
+    <div id="authView" class="max-w-sm mx-auto my-12">
+      <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 sm:p-8 shadow-2xl text-center">
+        <div class="w-14 h-14 bg-amber-500/10 border border-amber-500/20 text-amber-400 rounded-2xl flex items-center justify-center mx-auto mb-4 text-2xl">
+          🔒
+        </div>
+        <h2 class="text-xl font-bold text-white">Admin Security Access</h2>
+        <p class="text-xs text-slate-400 mt-1 mb-6">Enter master passcode to unlock live team analytics & automated broadcast tools.</p>
+        
+        <form onsubmit="handleAdminAuth(event)" class="space-y-4">
+          <input
+            type="password"
+            id="adminPin"
+            required
+            placeholder="Default PIN: 1234"
+            class="w-full text-center tracking-[0.4em] text-lg font-mono px-4 py-3 rounded-xl bg-slate-950 border border-slate-700 text-white focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition"
+          />
+          <button
+            type="submit"
+            class="w-full py-3 px-4 bg-amber-500 hover:bg-amber-400 active:scale-[0.99] text-slate-950 font-bold rounded-xl text-sm transition shadow-lg shadow-amber-500/20"
+          >
+            Unlock Dashboard
+          </button>
+        </form>
+        <div id="authError" class="hidden mt-4 p-2.5 rounded-lg bg-red-950/60 border border-red-800 text-red-300 text-xs">
+          Incorrect PIN! Please try again.
+        </div>
+      </div>
+    </div>
+
+    <!-- Admin Dashboard View -->
+    <div id="adminDashboardView" class="hidden space-y-8">
+      
+      <!-- Top Overview Metrics Grid -->
+      <div class="grid grid-cols-2 lg:grid-cols-5 gap-3 sm:gap-4">
+        <div class="bg-slate-900 border border-slate-800/80 p-4 sm:p-5 rounded-2xl">
+          <div class="text-xs text-slate-400 font-medium">Total Team Size</div>
+          <div class="text-2xl sm:text-3xl font-black text-white mt-1">123</div>
+          <div class="text-[11px] text-slate-500 mt-1">Full database records</div>
+        </div>
+        <div class="bg-slate-900 border border-slate-800/80 p-4 sm:p-5 rounded-2xl">
+          <div class="text-xs text-slate-400 font-medium">Active 28 Leads</div>
+          <div class="text-2xl sm:text-3xl font-black text-indigo-400 mt-1">28</div>
+          <div class="text-[11px] text-indigo-400/80 mt-1">Assigned outreach leads</div>
+        </div>
+        <div class="bg-slate-900 border border-slate-800/80 p-4 sm:p-5 rounded-2xl">
+          <div class="text-xs text-slate-400 font-medium">Pending Forms</div>
+          <div id="metricPending" class="text-2xl sm:text-3xl font-black text-amber-400 mt-1">0</div>
+          <div class="text-[11px] text-amber-400/80 mt-1">Real-time Cloud Sync</div>
+        </div>
+        <div class="bg-slate-900 border border-slate-800/80 p-4 sm:p-5 rounded-2xl">
+          <div class="text-xs text-slate-400 font-medium">Completed Outreaches</div>
+          <div id="metricCompleted" class="text-2xl sm:text-3xl font-black text-emerald-400 mt-1">0</div>
+          <div class="text-[11px] text-emerald-400/80 mt-1">Live confirmed by members</div>
+        </div>
+        <div class="col-span-2 lg:col-span-1 bg-slate-900 border border-slate-800/80 p-4 sm:p-5 rounded-2xl flex flex-col justify-between">
+          <div class="text-xs text-slate-400 font-medium">Overall Progress</div>
+          <div id="metricProgressRate" class="text-2xl sm:text-3xl font-black text-cyan-400 mt-1">0%</div>
+          <div class="w-full bg-slate-800 h-2 rounded-full overflow-hidden mt-2">
+            <div id="metricProgressBar" class="bg-gradient-to-r from-cyan-500 to-emerald-500 h-full w-0 transition-all duration-500"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- AUTOMATED BULK BROADCAST DISPATCHER -->
+      <div class="bg-gradient-to-br from-slate-900 via-slate-900 to-indigo-950/50 border border-indigo-500/30 rounded-2xl p-6 shadow-xl space-y-4">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800 pb-3">
+          <div class="flex items-center space-x-2.5">
+            <div class="w-8 h-8 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold">🚀</div>
+            <div>
+              <h3 class="font-bold text-white text-base">Automated Broadcast Dispatcher</h3>
+              <p class="text-xs text-slate-400">Select all karein aur ek click se automated queue start karein.</p>
+            </div>
+          </div>
+          <div class="flex items-center space-x-2">
+            <button
+              onclick="toggleSelectAllMembers()"
+              id="btnSelectAllToggle"
+              class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-slate-200 transition border border-slate-700"
+            >
+              Deselect All
+            </button>
+            <button
+              onclick="startBulkBroadcastRunner()"
+              class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white text-xs font-bold transition shadow-lg shadow-emerald-600/30 flex items-center space-x-1.5"
+            >
+              <span>▶ Start Auto Broadcast</span>
+              <span id="selectedBadgeCount" class="bg-emerald-950/80 px-1.5 py-0.5 rounded text-[10px] text-emerald-200">28</span>
+            </button>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1.5">
+            Custom Message Template: <span class="text-slate-400 lowercase font-normal">(Tag <b>{name}</b> automatically replaced with member's actual name)</span>
+          </label>
+          <textarea
+            id="broadcastCustomText"
+            rows="3"
+            class="w-full px-4 py-3 rounded-xl bg-slate-950 border border-slate-700 text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 text-xs transition leading-relaxed font-mono"
+          >Assalamu Alaikum {name},
+
+Team delegation portal live ho chuka hai. Please 2 minute nikal kar apna portal login karein aur apne assigned contacts se form fill karwayein:
+
+👉 Portal: https://wisdom-task-assign.vercel.app/
+
+Shukriya!</textarea>
+        </div>
+
+        <!-- Members Selection Grid -->
+        <div>
+          <div class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-2 flex items-center justify-between">
+            <span>Recipient Queue (Click to include/exclude):</span>
+            <span class="text-slate-500 lowercase font-normal">checked members will receive the message</span>
+          </div>
+          <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7 gap-2" id="memberCheckboxGrid"></div>
+        </div>
+      </div>
+
+      <!-- Tab Navigation -->
+      <div class="flex border-b border-slate-800 space-x-6 text-sm font-semibold">
+        <button onclick="switchTab('delegatesTab')" id="tabBtnDelegates" class="pb-3 text-amber-400 border-b-2 border-amber-400 flex items-center space-x-2">
+          <span>👥 28 Members Performance</span>
+        </button>
+        <button onclick="switchTab('contactsTab')" id="tabBtnContacts" class="pb-3 text-slate-400 hover:text-slate-200 flex items-center space-x-2">
+          <span>📑 Master Contacts Directory (97)</span>
+        </button>
+      </div>
+
+      <!-- Tab 1: Member Performance Breakdown -->
+      <div id="delegatesTab" class="space-y-4">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-slate-900/60 p-4 rounded-xl border border-slate-800">
+          <div>
+            <h3 class="font-bold text-white text-base">Assignee Performance Overview</h3>
+            <p class="text-xs text-slate-400">Har member ke assigned contacts aur real-time cloud sync status.</p>
+          </div>
+          <input
+            type="text"
+            id="memberSearch"
+            oninput="renderDelegatesTable()"
+            placeholder="Search member by name/phone..."
+            class="px-3.5 py-2 rounded-lg bg-slate-950 border border-slate-700 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-amber-500 w-full sm:w-64"
+          />
+        </div>
+
+        <div class="overflow-x-auto rounded-2xl border border-slate-800 bg-slate-900/80">
+          <table class="w-full text-left text-xs">
+            <thead class="bg-slate-950/80 text-slate-400 uppercase tracking-wider font-semibold border-b border-slate-800">
+              <tr>
+                <th class="py-3.5 px-4">#</th>
+                <th class="py-3.5 px-4">Assignee Member</th>
+                <th class="py-3.5 px-4">WhatsApp Contact</th>
+                <th class="py-3.5 px-4 text-center">Assigned</th>
+                <th class="py-3.5 px-4 text-center">Done</th>
+                <th class="py-3.5 px-4 text-center">Pending</th>
+                <th class="py-3.5 px-4 text-center">Status</th>
+                <th class="py-3.5 px-4 text-right">Direct Dispatch</th>
+              </tr>
+            </thead>
+            <tbody id="delegatesTableBody" class="divide-y divide-slate-800/60 font-medium"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Tab 2: Master Contacts Directory -->
+      <div id="contactsTab" class="hidden space-y-4">
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 bg-slate-900/60 p-4 rounded-xl border border-slate-800">
+          <div class="sm:col-span-2">
+            <input
+              type="text"
+              id="contactSearch"
+              oninput="renderContactsTable()"
+              placeholder="Search target person name, phone or assigned lead..."
+              class="w-full px-3.5 py-2 rounded-lg bg-slate-950 border border-slate-700 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-amber-500"
+            />
+          </div>
+          <div>
+            <select
+              id="statusFilter"
+              onchange="renderContactsTable()"
+              class="w-full px-3.5 py-2 rounded-lg bg-slate-950 border border-slate-700 text-xs text-white focus:outline-none focus:border-amber-500"
+            >
+              <option value="all">All Statuses (Pending & Done)</option>
+              <option value="pending">Show Pending Only</option>
+              <option value="completed">Show Completed Only</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="overflow-x-auto rounded-2xl border border-slate-800 bg-slate-900/80">
+          <table class="w-full text-left text-xs">
+            <thead class="bg-slate-950/80 text-slate-400 uppercase tracking-wider font-semibold border-b border-slate-800">
+              <tr>
+                <th class="py-3.5 px-4">ID</th>
+                <th class="py-3.5 px-4">Target Person Name</th>
+                <th class="py-3.5 px-4">Target Phone</th>
+                <th class="py-3.5 px-4">Assigned Outreach Lead</th>
+                <th class="py-3.5 px-4 text-center">Status</th>
+                <th class="py-3.5 px-4 text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="contactsTableBody" class="divide-y divide-slate-800/60 font-medium"></tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- AUTO BROADCAST RUNNER MODAL -->
+  <div id="runnerModal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-700 rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl space-y-6 text-center">
+      <div class="w-16 h-16 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 rounded-2xl flex items-center justify-center mx-auto text-3xl animate-bounce">
+        💬
+      </div>
+      <div>
+        <span id="runnerStepBadge" class="text-xs font-bold px-3 py-1 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">
+          Sending 1 of 28
+        </span>
+        <h3 id="runnerMemberName" class="text-xl font-bold text-white mt-3">Member Name</h3>
+        <p id="runnerMemberPhone" class="text-xs text-slate-400 font-mono mt-0.5">0300XXXXXXX</p>
+      </div>
+
+      <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 text-left">
+        <div class="text-[10px] text-slate-500 font-bold uppercase tracking-wider mb-1">Message Preview:</div>
+        <p id="runnerMessagePreview" class="text-xs text-slate-300 line-clamp-3 font-mono"></p>
+      </div>
+
+      <!-- Action Controls -->
+      <div class="space-y-3">
+        <button
+          onclick="triggerCurrentQueueSend()"
+          class="w-full py-3.5 px-4 bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white font-bold rounded-xl text-sm transition shadow-lg shadow-emerald-600/30 flex items-center justify-center space-x-2"
+        >
+          <span>Open WhatsApp & Send</span>
+          <span>↗</span>
+        </button>
+
+        <div class="flex items-center space-x-2">
+          <button
+            onclick="skipCurrentQueueMember()"
+            class="flex-1 py-2.5 px-3 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs font-semibold transition"
+          >
+            Skip Next ⏭
+          </button>
+          <button
+            onclick="closeRunnerModal()"
+            class="flex-1 py-2.5 px-3 bg-red-950/40 hover:bg-red-900/60 border border-red-800/60 text-red-300 rounded-xl text-xs font-semibold transition"
+          >
+            Cancel Broadcast
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="border-t border-slate-800/60 py-4 text-center text-xs text-slate-500">
+    Master Administration & Delegation Portal • Automated Broadcast Engine
+  </footer>
+
+  <!-- Firebase Modular Setup -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-app.js";
+    import { getFirestore, doc, onSnapshot, setDoc } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyAVsKE7FS1riBuMiyLEr-CLV-bACsnWnGI",
+      authDomain: "wisdom-task-assign.firebaseapp.com",
+      projectId: "wisdom-task-assign",
+      storageBucket: "wisdom-task-assign.firebasestorage.app",
+      messagingSenderId: "904425836718",
+      appId: "1:904425836718:web:afb68d30ad91bcc7079d3f",
+      measurementId: "G-JMC7RJV82Z"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    const ADMIN_PIN = "1234";
+    const GOOGLE_FORM_URL = "https://docs.google.com/forms/d/e/1FAIpQLScP_729Z0g5_qf7jYyE_example/viewform";
+    const VERIFIED_MEMBERS = [
+      { "phone": "03154222065", "name": "Ubaid Ur Rehman" },
+      { "phone": "03004412807", "name": "Abdullah Jamil" },
+      { "phone": "03361118331", "name": "Saad Ul Iman" },
+      { "phone": "03264496223", "name": "Muhammad Awais" },
+      { "phone": "03006308231", "name": "Muhammad Salman Safdar" },
+      { "phone": "03187177046", "name": "Muhammad Zain Ahmad" },
+      { "phone": "03484587399", "name": "Hassan Shahbaz" },
+      { "phone": "03328530697", "name": "Muhammad Hassaan" },
+      { "phone": "03214784033", "name": "Abdullah Khalid" },
+      { "phone": "030035238753", "name": "Hafiz Rizwan Ahmad" },
+      { "phone": "03196990258", "name": "Muhammad Kaif Raza" },
+      { "phone": "03294852466", "name": "Muhammad Umair Shafique" },
+      { "phone": "03095532211", "name": "Ali" },
+      { "phone": "03007933327", "name": "Abubakar Rehman Raf Raf" },
+      { "phone": "03214148953", "name": "Fahad Naeem" },
+      { "phone": "03444113519", "name": "Umerzaviaar" },
+      { "phone": "03703767178", "name": "Mian Ebaad Ahmed" },
+      { "phone": "03039650124", "name": "Mian Ahmed hassan" },
+      { "phone": "03328184677", "name": "Abdul Rafay" },
+      { "phone": "03278609050", "name": "Salman Faisal Hayee" },
+      { "phone": "03497546076", "name": "MUHAMMAD UMAR" },
+      { "phone": "03365451987", "name": "Abdul Aahad" },
+      { "phone": "03397936267", "name": "Faaz Khan" },
+      { "phone": "03197272183", "name": "Muhammad Zaid" },
+      { "phone": "03005807562", "name": "Zia ullah Zafar" },
+      { "phone": "03018499981", "name": "Syed Taha Gillani" },
+      { "phone": "03274690008", "name": "Muzamil Moqeem" },
+      { "phone": "03397861737", "name": "muhammad saad han" }
+    ];
+
+    let ASSIGNED_DATA = [
+      { "id": 1, "name": "Abdulah Asif Wisdom", "phone": "03281486866", "assignedTo": "03154222065", "assigneeName": "Ubaid Ur Rehman", "status": "pending" },
+      { "id": 2, "name": "Abdullah CR", "phone": "03248083268", "assignedTo": "03004412807", "assigneeName": "Abdullah Jamil", "status": "pending" },
+      { "id": 3, "name": "Afnan Imtiaz", "phone": "03314969358", "assignedTo": "03361118331", "assigneeName": "Saad Ul Iman", "status": "pending" },
+      { "id": 4, "name": "Afzaal Sb Wisdom Vice", "phone": "03257460582", "assignedTo": "03264496223", "assigneeName": "Muhammad Awais", "status": "pending" },
+      { "id": 5, "name": "Ali Hayat", "phone": "03274875479", "assignedTo": "03006308231", "assigneeName": "Muhammad Salman Safdar", "status": "pending" },
+      { "id": 6, "name": "Arham Naqee", "phone": "03332858766", "assignedTo": "03187177046", "assigneeName": "Muhammad Zain Ahmad", "status": "pending" },
+      { "id": 7, "name": "Fahad Pgc", "phone": "03000970026", "assignedTo": "03484587399", "assigneeName": "Hassan Shahbaz", "status": "pending" },
+      { "id": 8, "name": "Food Bank", "phone": "03004515536", "assignedTo": "03328530697", "assigneeName": "Muhammad Hassaan", "status": "pending" },
+      { "id": 9, "name": "(Hadith) Dawood Saleh Khan", "phone": "03136446936", "assignedTo": "03214784033", "assigneeName": "Abdullah Khalid", "status": "pending" },
+      { "id": 10, "name": "Hadi Malik", "phone": "03066745048", "assignedTo": "030035238753", "assigneeName": "Hafiz Rizwan Ahmad", "status": "pending" },
+      { "id": 11, "name": "Husnain Mutaza Pgc", "phone": "03064273793", "assignedTo": "03196990258", "assigneeName": "Muhammad Kaif Raza", "status": "pending" },
+      { "id": 12, "name": "Ibrahim Rehmat Wisdom", "phone": "03284793847", "assignedTo": "03294852466", "assigneeName": "Muhammad Umair Shafique", "status": "pending" },
+      { "id": 13, "name": "Irtaza Sohail Pgc", "phone": "03244955422", "assignedTo": "03095532211", "assigneeName": "Ali", "status": "pending" },
+      { "id": 14, "name": "Moeez Ahmad", "phone": "03213486669", "assignedTo": "03007933327", "assigneeName": "Abubakar Rehman Raf Raf", "status": "pending" },
+      { "id": 15, "name": "Mustafa Ali", "phone": "03353110206", "assignedTo": "03214148953", "assigneeName": "Fahad Naeem", "status": "pending" },
+      { "id": 16, "name": "Noor Shery Pgc", "phone": "03005625891", "assignedTo": "03444113519", "assigneeName": "Umerzaviaar", "status": "pending" },
+      { "id": 17, "name": "P (Hadith) Saad (Ali)", "phone": "03314055033", "assignedTo": "03703767178", "assigneeName": "Mian Ebaad Ahmed", "status": "pending" },
+      { "id": 18, "name": "Rizwan Ahmad (Wisdom)", "phone": "03035237753", "assignedTo": "03039650124", "assigneeName": "Mian Ahmed hassan", "status": "pending" },
+      { "id": 19, "name": "Saad Bhai Wisdom", "phone": "03059619834", "assignedTo": "03328184677", "assigneeName": "Abdul Rafay", "status": "pending" },
+      { "id": 20, "name": "Sir Ali Akbar", "phone": "03004516495", "assignedTo": "03278609050", "assigneeName": "Salman Faisal Hayee", "status": "pending" },
+      { "id": 21, "name": "Talha Pgc Matiullah MEB-01", "phone": "03240698389", "assignedTo": "03497546076", "assigneeName": "MUHAMMAD UMAR", "status": "pending" },
+      { "id": 22, "name": "@wisdominstitute.pak", "phone": "03004516944", "assignedTo": "03365451987", "assigneeName": "Abdul Aahad", "status": "pending" },
+      { "id": 23, "name": "Wisdom Mian Fahad", "phone": "03046666721", "assignedTo": "03397936267", "assigneeName": "Faaz Khan", "status": "pending" },
+      { "id": 24, "name": "Haziq Rashid", "phone": "03174226539", "assignedTo": "03197272183", "assigneeName": "Muhammad Zaid", "status": "pending" },
+      { "id": 25, "name": "Ruman", "phone": "03013628386", "assignedTo": "03005807562", "assigneeName": "Zia ullah Zafar", "status": "pending" },
+      { "id": 26, "name": "Хузайفا", "phone": "03279414005", "assignedTo": "03018499981", "assigneeName": "Syed Taha Gillani", "status": "pending" },
+      { "id": 27, "name": "حمزہ", "phone": "03124110513", "assignedTo": "03274690008", "assigneeName": "Muzamil Moqeem", "status": "pending" },
+      { "id": 28, "name": "Unknown", "phone": "03311437976", "assignedTo": "03397861737", "assigneeName": "muhammad saad han", "status": "pending" },
+      { "id": 29, "name": "Unknown", "phone": "03233441142", "assignedTo": "03154222065", "assigneeName": "Ubaid Ur Rehman", "status": "pending" },
+      { "id": 30, "name": "Unknown", "phone": "03044295351", "assignedTo": "03004412807", "assigneeName": "Abdullah Jamil", "status": "pending" },
+      { "id": 31, "name": "Unknown", "phone": "03180474824", "assignedTo": "03361118331", "assigneeName": "Saad Ul Iman", "status": "pending" },
+      { "id": 32, "name": "Unknown", "phone": "03244197434", "assignedTo": "03264496223", "assigneeName": "Muhammad Awais", "status": "pending" },
+      { "id": 33, "name": "Unknown", "phone": "03156640675", "assignedTo": "03006308231", "assigneeName": "Muhammad Salman Safdar", "status": "pending" },
+      { "id": 34, "name": "Unknown", "phone": "03034707404", "assignedTo": "03187177046", "assigneeName": "Muhammad Zain Ahmad", "status": "pending" },
+      { "id": 35, "name": "Unknown", "phone": "03004511808", "assignedTo": "03484587399", "assigneeName": "Hassan Shahbaz", "status": "pending" },
+      { "id": 36, "name": "Unknown", "phone": "03024682930", "assignedTo": "03328530697", "assigneeName": "Muhammad Hassaan", "status": "pending" },
+      { "id": 37, "name": "Unknown", "phone": "03105915639", "assignedTo": "03214784033", "assigneeName": "Abdullah Khalid", "status": "pending" },
+      { "id": 38, "name": "Unknown", "phone": "03278032207", "assignedTo": "030035238753", "assigneeName": "Hafiz Rizwan Ahmad", "status": "pending" },
+      { "id": 39, "name": "Unknown", "phone": "03137258047", "assignedTo": "03196990258", "assigneeName": "Muhammad Kaif Raza", "status": "pending" },
+      { "id": 40, "name": "Unknown", "phone": "03140795922", "assignedTo": "03294852466", "assigneeName": "Muhammad Umair Shafique", "status": "pending" },
+      { "id": 41, "name": "Unknown", "phone": "971505031565", "assignedTo": "03095532211", "assigneeName": "Ali", "status": "pending" },
+      { "id": 42, "name": "Unknown", "phone": "03154609041", "assignedTo": "03007933327", "assigneeName": "Abubakar Rehman Raf Raf", "status": "pending" },
+      { "id": 43, "name": "Unknown", "phone": "03004514408", "assignedTo": "03214148953", "assigneeName": "Fahad Naeem", "status": "pending" },
+      { "id": 44, "name": "Unknown", "phone": "03008418287", "assignedTo": "03444113519", "assigneeName": "Umerzaviaar", "status": "pending" },
+      { "id": 45, "name": "Unknown", "phone": "03249987466", "assignedTo": "03703767178", "assigneeName": "Mian Ebaad Ahmed", "status": "pending" },
+      { "id": 46, "name": "Unknown", "phone": "03204682408", "assignedTo": "03039650124", "assigneeName": "Mian Ahmed hassan", "status": "pending" },
+      { "id": 47, "name": "Unknown", "phone": "03313300122", "assignedTo": "03328184677", "assigneeName": "Abdul Rafay", "status": "pending" },
+      { "id": 48, "name": "Unknown", "phone": "03261022282", "assignedTo": "03278609050", "assigneeName": "Salman Faisal Hayee", "status": "pending" },
+      { "id": 49, "name": "Unknown", "phone": "03009696174", "assignedTo": "03497546076", "assigneeName": "MUHAMMAD UMAR", "status": "pending" },
+      { "id": 50, "name": "Unknown", "phone": "03204663404", "assignedTo": "03365451987", "assigneeName": "Abdul Aahad", "status": "pending" },
+      { "id": 51, "name": "Unknown", "phone": "03254316062", "assignedTo": "03397936267", "assigneeName": "Faaz Khan", "status": "pending" },
+      { "id": 52, "name": "Unknown", "phone": "03294569979", "assignedTo": "03197272183", "assigneeName": "Muhammad Zaid", "status": "pending" },
+      { "id": 53, "name": "Unknown", "phone": "03086336161", "assignedTo": "03005807562", "assigneeName": "Zia ullah Zafar", "status": "pending" },
+      { "id": 54, "name": "Unknown", "phone": "03156367608", "assignedTo": "03018499981", "assigneeName": "Syed Taha Gillani", "status": "pending" },
+      { "id": 55, "name": "Unknown", "phone": "03254102637", "assignedTo": "03274690008", "assigneeName": "Muzamil Moqeem", "status": "pending" },
+      { "id": 56, "name": "Unknown", "phone": "03212099427", "assignedTo": "03397861737", "assigneeName": "muhammad saad han", "status": "pending" },
+      { "id": 57, "name": "Unknown", "phone": "03244703202", "assignedTo": "03154222065", "assigneeName": "Ubaid Ur Rehman", "status": "pending" },
+      { "id": 58, "name": "Unknown", "phone": "03175472386", "assignedTo": "03004412807", "assigneeName": "Abdullah Jamil", "status": "pending" },
+      { "id": 59, "name": "Unknown", "phone": "03079419122", "assignedTo": "03361118331", "assigneeName": "Saad Ul Iman", "status": "pending" },
+      { "id": 60, "name": "Unknown", "phone": "03048666479", "assignedTo": "03264496223", "assigneeName": "Muhammad Awais", "status": "pending" },
+      { "id": 61, "name": "Unknown", "phone": "03261439146", "assignedTo": "03006308231", "assigneeName": "Muhammad Salman Safdar", "status": "pending" },
+      { "id": 62, "name": "Unknown", "phone": "03264322326", "assignedTo": "03187177046", "assigneeName": "Muhammad Zain Ahmad", "status": "pending" },
+      { "id": 63, "name": "Unknown", "phone": "03260606837", "assignedTo": "03484587399", "assigneeName": "Hassan Shahbaz", "status": "pending" },
+      { "id": 64, "name": "Unknown", "phone": "03164782093", "assignedTo": "03328530697", "assigneeName": "Muhammad Hassaan", "status": "pending" },
+      { "id": 65, "name": "Unknown", "phone": "03079588658", "assignedTo": "03214784033", "assigneeName": "Abdullah Khalid", "status": "pending" },
+      { "id": 66, "name": "Unknown", "phone": "03009482408", "assignedTo": "030035238753", "assigneeName": "Hafiz Rizwan Ahmad", "status": "pending" },
+      { "id": 67, "name": "Unknown", "phone": "03008185713", "assignedTo": "03196990258", "assigneeName": "Muhammad Kaif Raza", "status": "pending" },
+      { "id": 68, "name": "Unknown", "phone": "03204437544", "assignedTo": "03294852466", "assigneeName": "Muhammad Umair Shafique", "status": "pending" },
+      { "id": 69, "name": "Unknown", "phone": "03140875605", "assignedTo": "03095532211", "assigneeName": "Ali", "status": "pending" },
+      { "id": 70, "name": "Unknown", "phone": "03236996597", "assignedTo": "03007933327", "assigneeName": "Abubakar Rehman Raf Raf", "status": "pending" },
+      { "id": 71, "name": "Unknown", "phone": "03213906257", "assignedTo": "03214148953", "assigneeName": "Fahad Naeem", "status": "pending" },
+      { "id": 72, "name": "Unknown", "phone": "03499214468", "assignedTo": "03444113519", "assigneeName": "Umerzaviaar", "status": "pending" },
+      { "id": 73, "name": "Unknown", "phone": "03338685154", "assignedTo": "03703767178", "assigneeName": "Mian Ebaad Ahmed", "status": "pending" },
+      { "id": 74, "name": "Unknown", "phone": "03214852212", "assignedTo": "03039650124", "assigneeName": "Mian Ahmed hassan", "status": "pending" },
+      { "id": 75, "name": "Unknown", "phone": "03314319248", "assignedTo": "03328184677", "assigneeName": "Abdul Rafay", "status": "pending" },
+      { "id": 76, "name": "Unknown", "phone": "03034368098", "assignedTo": "03278609050", "assigneeName": "Salman Faisal Hayee", "status": "pending" },
+      { "id": 77, "name": "Unknown", "phone": "03117371013", "assignedTo": "03497546076", "assigneeName": "MUHAMMAD UMAR", "status": "pending" },
+      { "id": 78, "name": "Unknown", "phone": "03269414322", "assignedTo": "03365451987", "assigneeName": "Abdul Aahad", "status": "pending" },
+      { "id": 79, "name": "Unknown", "phone": "03355869667", "assignedTo": "03397936267", "assigneeName": "Faaz Khan", "status": "pending" },
+      { "id": 80, "name": "Unknown", "phone": "03215277098", "assignedTo": "03197272183", "assigneeName": "Muhammad Zaid", "status": "pending" },
+      { "id": 81, "name": "Unknown", "phone": "03321441438", "assignedTo": "03005807562", "assigneeName": "Zia ullah Zafar", "status": "pending" },
+      { "id": 82, "name": "Unknown", "phone": "03224301912", "assignedTo": "03018499981", "assigneeName": "Syed Taha Gillani", "status": "pending" },
+      { "id": 83, "name": "Unknown", "phone": "03289465115", "assignedTo": "03274690008", "assigneeName": "Muzamil Moqeem", "status": "pending" },
+      { "id": 84, "name": "Unknown", "phone": "03164292616", "assignedTo": "03397861737", "assigneeName": "muhammad saad han", "status": "pending" },
+      { "id": 85, "name": "Unknown", "phone": "03445261576", "assignedTo": "03154222065", "assigneeName": "Ubaid Ur Rehman", "status": "pending" },
+      { "id": 86, "name": "Unknown", "phone": "03711458840", "assignedTo": "03004412807", "assigneeName": "Abdullah Jamil", "status": "pending" },
+      { "id": 87, "name": "Unknown", "phone": "03197656885", "assignedTo": "03361118331", "assigneeName": "Saad Ul Iman", "status": "pending" },
+      { "id": 88, "name": "Unknown", "phone": "03166076692", "assignedTo": "03264496223", "assigneeName": "Muhammad Awais", "status": "pending" },
+      { "id": 89, "name": "Unknown", "phone": "03124444720", "assignedTo": "03006308231", "assigneeName": "Muhammad Salman Safdar", "status": "pending" },
+      { "id": 90, "name": "Unknown", "phone": "03194847544", "assignedTo": "03187177046", "assigneeName": "Muhammad Zain Ahmad", "status": "pending" },
+      { "id": 91, "name": "Unknown", "phone": "03014372273", "assignedTo": "03484587399", "assigneeName": "Hassan Shahbaz", "status": "pending" },
+      { "id": 92, "name": "Unknown", "phone": "03030608706", "assignedTo": "03328530697", "assigneeName": "Muhammad Hassaan", "status": "pending" },
+      { "id": 93, "name": "Unknown", "phone": "03207440727", "assignedTo": "03214784033", "assigneeName": "Abdullah Khalid", "status": "pending" },
+      { "id": 94, "name": "Unknown", "phone": "03014479434", "assignedTo": "030035238753", "assigneeName": "Hafiz Rizwan Ahmad", "status": "pending" },
+      { "id": 95, "name": "Unknown", "phone": "03265942276", "assignedTo": "03196990258", "assigneeName": "Muhammad Kaif Raza", "status": "pending" },
+      { "id": 96, "name": "Unknown", "phone": "03424318879", "assignedTo": "03294852466", "assigneeName": "Muhammad Umair Shafique", "status": "pending" },
+      { "id": 97, "name": "Unknown", "phone": "03298829430", "assignedTo": "03095532211", "assigneeName": "Ali", "status": "pending" }
+    ];
+
+    const statusDocRef = doc(db, "delegation", "tasks_status");
+
+    // Real-time Firestore Sync
+    onSnapshot(statusDocRef, (snap) => {
+      if (snap.exists()) {
+        const liveMap = snap.data();
+        ASSIGNED_DATA.forEach(item => {
+          if (liveMap[item.id] !== undefined) {
+            item.status = liveMap[item.id];
+          }
+        });
+        updateOverviewMetrics();
+        renderDelegatesTable();
+        renderContactsTable();
+      }
+    });
+
+    function cleanPhone(num) {
+      if (!num) return "";
+      let cleaned = num.toString().replace(/[^0-9]/g, "");
+      if (cleaned.startsWith("92")) cleaned = "0" + cleaned.slice(2);
+      return cleaned;
+    }
+
+    function formatWaLink(num, name) {
+      let cleaned = num.toString().replace(/[^0-9]/g, "");
+      if (cleaned.startsWith("0")) cleaned = "92" + cleaned.slice(1);
+      const msg = `Assalamu Alaikum ${name},\n\nHamari team records update ho rahe hain. Please 2 minute nikal kar ye official form fill kar dein taake aapka data record mein ajaye:\n\n👉 Form Link: ${GOOGLE_FORM_URL}\n\nFill karne ke baad yahan reply zaroor karein. Shukriya!`;
+      return `https://wa.me/${cleaned}?text=${encodeURIComponent(msg)}`;
+    }
+
+    // ==========================================
+    // AUTO BROADCAST ENGINE
+    // ==========================================
+    let selectedMemberPhones = new Set(VERIFIED_MEMBERS.map(m => cleanPhone(m.phone)));
+    let activeQueue = [];
+    let currentQueueIdx = 0;
+
+    window.toggleSelectAllMembers = function() {
+      const btn = document.getElementById("btnSelectAllToggle");
+      if (selectedMemberPhones.size === VERIFIED_MEMBERS.length) {
+        selectedMemberPhones.clear();
+        btn.textContent = "Select All";
+      } else {
+        selectedMemberPhones = new Set(VERIFIED_MEMBERS.map(m => cleanPhone(m.phone)));
+        btn.textContent = "Deselect All";
+      }
+      renderMemberSelectionGrid();
+    };
+
+    function renderMemberSelectionGrid() {
+      const container = document.getElementById("memberCheckboxGrid");
+      if (!container) return;
+      container.innerHTML = "";
+
+      VERIFIED_MEMBERS.forEach((m, idx) => {
+        const cp = cleanPhone(m.phone);
+        const isChecked = selectedMemberPhones.has(cp);
+
+        const card = document.createElement("div");
+        card.className = `p-2.5 rounded-xl border transition cursor-pointer flex items-center space-x-2.5 ${
+          isChecked 
+            ? "bg-indigo-950/40 border-indigo-500/60 text-white" 
+            : "bg-slate-950/60 border-slate-800 text-slate-400 opacity-60"
+        }`;
+
+        card.onclick = (e) => {
+          if (e.target.tagName !== "INPUT") {
+            if (selectedMemberPhones.has(cp)) selectedMemberPhones.delete(cp);
+            else selectedMemberPhones.add(cp);
+            renderMemberSelectionGrid();
+          }
+        };
+
+        card.innerHTML = `
+          <input
+            type="checkbox"
+            ${isChecked ? "checked" : ""}
+            class="rounded bg-slate-900 border-slate-700 text-indigo-600 focus:ring-0 cursor-pointer pointer-events-none"
+          />
+          <div class="truncate text-left">
+            <div class="font-bold text-xs truncate">${m.name}</div>
+            <div class="text-[10px] text-slate-500 font-mono">${m.phone}</div>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+
+      document.getElementById("selectedBadgeCount").textContent = selectedMemberPhones.size;
+      const btn = document.getElementById("btnSelectAllToggle");
+      btn.textContent = selectedMemberPhones.size === VERIFIED_MEMBERS.length ? "Deselect All" : "Select All";
+    }
+
+    window.startBulkBroadcastRunner = function() {
+      activeQueue = VERIFIED_MEMBERS.filter(m => selectedMemberPhones.has(cleanPhone(m.phone)));
+      if (activeQueue.length === 0) {
+        alert("Please pehle kam az kam ek member select karein!");
+        return;
+      }
+      currentQueueIdx = 0;
+      showRunnerStep();
+      document.getElementById("runnerModal").classList.remove("hidden");
+    };
+
+    function showRunnerStep() {
+      if (currentQueueIdx >= activeQueue.length) {
+        closeRunnerModal();
+        alert("🎉 Tamam selected members ko broadcast queue complete ho gayi!");
+        return;
+      }
+
+      const member = activeQueue[currentQueueIdx];
+      const rawText = document.getElementById("broadcastCustomText").value;
+      const personalized = rawText.replace(/{name}/g, member.name);
+
+      document.getElementById("runnerStepBadge").textContent = `Sending ${currentQueueIdx + 1} of ${activeQueue.length}`;
+      document.getElementById("runnerMemberName").textContent = member.name;
+      document.getElementById("runnerMemberPhone").textContent = member.phone;
+      document.getElementById("runnerMessagePreview").textContent = personalized;
+    }
+
+    window.triggerCurrentQueueSend = function() {
+      const member = activeQueue[currentQueueIdx];
+      const rawText = document.getElementById("broadcastCustomText").value;
+      const personalized = rawText.replace(/{name}/g, member.name);
+
+      let phoneClean = cleanPhone(member.phone);
+      if (phoneClean.startsWith("0")) phoneClean = "92" + phoneClean.slice(1);
+
+      const url = `https://wa.me/${phoneClean}?text=${encodeURIComponent(personalized)}`;
+      window.open(url, "_blank");
+
+      currentQueueIdx++;
+      showRunnerStep();
+    };
+
+    window.skipCurrentQueueMember = function() {
+      currentQueueIdx++;
+      showRunnerStep();
+    };
+
+    window.closeRunnerModal = function() {
+      document.getElementById("runnerModal").classList.add("hidden");
+    };
+
+    // Auth & Navigation Handlers
+    window.handleAdminAuth = function(e) {
+      e.preventDefault();
+      const pin = document.getElementById("adminPin").value;
+      if (pin === ADMIN_PIN) {
+        document.getElementById("authError").classList.add("hidden");
+        document.getElementById("authView").classList.add("hidden");
+        document.getElementById("adminDashboardView").classList.remove("hidden");
+        document.getElementById("adminNavActions").classList.remove("hidden");
+        updateOverviewMetrics();
+        renderDelegatesTable();
+        renderContactsTable();
+        renderMemberSelectionGrid();
+      } else {
+        document.getElementById("authError").classList.remove("hidden");
+      }
+    };
+
+    window.adminLogout = function() {
+      document.getElementById("authView").classList.remove("hidden");
+      document.getElementById("adminDashboardView").classList.add("hidden");
+      document.getElementById("adminNavActions").classList.add("hidden");
+      document.getElementById("adminPin").value = "";
+    };
+
+    window.switchTab = function(tabId) {
+      if (tabId === 'delegatesTab') {
+        document.getElementById('delegatesTab').classList.remove('hidden');
+        document.getElementById('contactsTab').classList.add('hidden');
+        document.getElementById('tabBtnDelegates').className = "pb-3 text-amber-400 border-b-2 border-amber-400 flex items-center space-x-2";
+        document.getElementById('tabBtnContacts').className = "pb-3 text-slate-400 hover:text-slate-200 flex items-center space-x-2";
+        renderDelegatesTable();
+      } else {
+        document.getElementById('delegatesTab').classList.add('hidden');
+        document.getElementById('contactsTab').classList.remove('hidden');
+        document.getElementById('tabBtnDelegates').className = "pb-3 text-slate-400 hover:text-slate-200 flex items-center space-x-2";
+        document.getElementById('tabBtnContacts').className = "pb-3 text-amber-400 border-b-2 border-amber-400 flex items-center space-x-2";
+        renderContactsTable();
+      }
+    };
+
+    function updateOverviewMetrics() {
+      const total = ASSIGNED_DATA.length;
+      const completed = ASSIGNED_DATA.filter(x => x.status === "completed").length;
+      const pending = total - completed;
+      const rate = total > 0 ? Math.round((completed / total) * 100) : 0;
+
+      const compEl = document.getElementById("metricCompleted");
+      const pendEl = document.getElementById("metricPending");
+      const rateEl = document.getElementById("metricProgressRate");
+      const barEl = document.getElementById("metricProgressBar");
+
+      if (compEl) compEl.textContent = completed;
+      if (pendEl) pendEl.textContent = pending;
+      if (rateEl) rateEl.textContent = rate + "%";
+      if (barEl) barEl.style.width = rate + "%";
+    }
+
+    window.renderDelegatesTable = function() {
+      const tbody = document.getElementById("delegatesTableBody");
+      if (!tbody) return;
+      const query = (document.getElementById("memberSearch")?.value || "").toLowerCase();
+      tbody.innerHTML = "";
+
+      VERIFIED_MEMBERS.forEach((member, idx) => {
+        if (query && !member.name.toLowerCase().includes(query) && !member.phone.includes(query)) return;
+
+        const cleanMemberPhone = cleanPhone(member.phone);
+        const myContacts = ASSIGNED_DATA.filter(x => {
+          const ac = cleanPhone(x.assignedTo);
+          return ac === cleanMemberPhone || (ac.length > 8 && cleanMemberPhone.length > 8 && (ac.endsWith(cleanMemberPhone.slice(-8)) || cleanMemberPhone.endsWith(ac.slice(-8))));
+        });
+
+        const totalAssigned = myContacts.length;
+        const doneCount = myContacts.filter(x => x.status === "completed").length;
+        const pendingCount = totalAssigned - doneCount;
+        const isAllDone = totalAssigned > 0 && doneCount === totalAssigned;
+
+        const row = document.createElement("tr");
+        row.className = "hover:bg-slate-800/40 transition";
+        row.innerHTML = `
+          <td class="py-3.5 px-4 text-slate-500 font-mono">${idx + 1}</td>
+          <td class="py-3.5 px-4">
+            <span class="font-bold text-white text-sm">${member.name}</span>
+          </td>
+          <td class="py-3.5 px-4 font-mono text-slate-300 text-xs">${member.phone}</td>
+          <td class="py-3.5 px-4 text-center">
+            <span class="px-2 py-0.5 rounded bg-slate-800 text-slate-200 font-bold">${totalAssigned}</span>
+          </td>
+          <td class="py-3.5 px-4 text-center">
+            <span class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 font-bold">${doneCount}</span>
+          </td>
+          <td class="py-3.5 px-4 text-center">
+            <span class="px-2 py-0.5 rounded bg-amber-500/20 text-amber-400 font-bold">${pendingCount}</span>
+          </td>
+          <td class="py-3.5 px-4 text-center">
+            ${
+              isAllDone 
+                ? '<span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">100% Done</span>' 
+                : doneCount > 0 
+                  ? '<span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-cyan-500/20 text-cyan-300 border border-cyan-500/30">In Progress</span>' 
+                  : '<span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-slate-800 text-slate-400 border border-slate-700">Pending</span>'
+            }
+          </td>
+          <td class="py-3.5 px-4 text-right">
+            <button
+              onclick='sendSingleDirect(${JSON.stringify(member)})'
+              class="inline-flex items-center space-x-1 px-3 py-1.5 rounded-lg bg-indigo-600/20 hover:bg-indigo-600 text-indigo-300 hover:text-white border border-indigo-500/30 text-xs font-semibold transition"
+            >
+              <span>Follow Up</span>
+            </button>
+          </td>
+        `;
+        tbody.appendChild(row);
+      });
+    };
+
+    window.sendSingleDirect = function(member) {
+      const rawText = document.getElementById("broadcastCustomText").value;
+      const personalized = rawText.replace(/{name}/g, member.name);
+      let phoneClean = cleanPhone(member.phone);
+      if (phoneClean.startsWith("0")) phoneClean = "92" + phoneClean.slice(1);
+
+      const url = `https://wa.me/${phoneClean}?text=${encodeURIComponent(personalized)}`;
+      window.open(url, "_blank");
+    };
+
+    window.renderContactsTable = function() {
+      const tbody = document.getElementById("contactsTableBody");
+      if (!tbody) return;
+      const query = (document.getElementById("contactSearch")?.value || "").toLowerCase();
+      const statusFilter = document.getElementById("statusFilter")?.value || "all";
+      tbody.innerHTML = "";
+
+      ASSIGNED_DATA.forEach(contact => {
+        if (statusFilter !== "all" && contact.status !== statusFilter) return;
+        if (query && !contact.name.toLowerCase().includes(query) && !contact.phone.includes(query) && !contact.assigneeName.toLowerCase().includes(query)) return;
+
+        const isCompleted = contact.status === "completed";
+        const row = document.createElement("tr");
+        row.className = `hover:bg-slate-800/40 transition ${isCompleted ? 'bg-emerald-950/10' : ''}`;
+        
+        row.innerHTML = `
+          <td class="py-3.5 px-4 font-mono text-slate-500">#${contact.id}</td>
+          <td class="py-3.5 px-4 font-bold text-white">${contact.name}</td>
+          <td class="py-3.5 px-4 font-mono text-slate-300">${contact.phone}</td>
+          <td class="py-3.5 px-4">
+            <div class="font-semibold text-amber-300">${contact.assigneeName}</div>
+            <div class="text-[10px] text-slate-400 font-mono">${contact.assignedTo}</div>
+          </td>
+          <td class="py-3.5 px-4 text-center">
+            ${
+              isCompleted 
+                ? '<span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">Form Filled</span>'
+                : '<span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30">Pending</span>'
+            }
+          </td>
+          <td class="py-3.5 px-4 text-right space-x-1.5">
+            <a
+              href="${formatWaLink(contact.phone, contact.name)}"
+              target="_blank"
+              class="inline-block px-2.5 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold transition"
+            >
+              WhatsApp
+            </a>
+            <button
+              onclick="toggleContactAdmin(${contact.id})"
+              class="px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold transition"
+            >
+              ${isCompleted ? 'Mark Pending' : 'Mark Done ✓'}
+            </button>
+          </td>
+        `;
+        tbody.appendChild(row);
+      });
+    };
+
+    window.toggleContactAdmin = async function(id) {
+      const item = ASSIGNED_DATA.find(x => x.id === id);
+      if (item) {
+        const newStatus = item.status === "completed" ? "pending" : "completed";
+        item.status = newStatus;
+        updateOverviewMetrics();
+        renderContactsTable();
+        renderDelegatesTable();
+
+        try {
+          await setDoc(statusDocRef, { [id]: newStatus }, { merge: true });
+        } catch (err) {
+          console.error("Firebase update error:", err);
+        }
+      }
+    };
+
+    window.copyGroupReport = function() {
+      const total = ASSIGNED_DATA.length;
+      const completed = ASSIGNED_DATA.filter(x => x.status === "completed").length;
+      const pending = total - completed;
+      const rate = total > 0 ? Math.round((completed / total) * 100) : 0;
+
+      let report = `📊 *TEAM FORM FILLING OUTREACH UPDATE* 📊\n\n`;
+      report += `👥 *Total Team Target:* 123\n`;
+      report += `✅ *Already Registered:* 28\n`;
+      report += `🎯 *Delegated Contacts:* 97\n`;
+      report += `📥 *Completed Follow-ups:* ${completed} / 97 (${rate}%)\n`;
+      report += `⏳ *Remaining Pending:* ${pending}\n\n`;
+      report += `⚡ *Top Active Assignees Status:*\n`;
+
+      VERIFIED_MEMBERS.slice(0, 10).forEach(m => {
+        const myContacts = ASSIGNED_DATA.filter(x => cleanPhone(x.assignedTo) === cleanPhone(m.phone));
+        const done = myContacts.filter(x => x.status === "completed").length;
+        report += `• ${m.name}: ${done}/${myContacts.length} Done\n`;
+      });
+
+      report += `\n👉 Please check the delegation portal and finish remaining contacts today!`;
+
+      navigator.clipboard.writeText(report).then(() => {
+        alert("Broadcast report copied to clipboard!");
+      });
+    };
+  </script>
+</body>
+</html>
