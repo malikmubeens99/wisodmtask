@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Team Task Delegation Portal</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    body { font-family: 'Plus Jakarta Sans', sans-serif; }
+  </style>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col justify-between">
+
+  <!-- Header -->
+  <header class="border-b border-slate-800 bg-slate-950/80 backdrop-blur sticky top-0 z-50">
+    <div class="max-w-4xl mx-auto px-4 py-4 flex items-center justify-between">
+      <div class="flex items-center space-x-3">
+        <div class="w-10 h-10 rounded-xl bg-indigo-600 flex items-center justify-center font-bold text-lg shadow-lg shadow-indigo-500/20 text-white">
+          TP
+        </div>
+        <div>
+          <h1 class="font-bold text-base sm:text-lg text-white">Team Delegation Portal</h1>
+          <p class="text-xs text-slate-400">Target Contact Dispatcher • <span id="syncBadge" class="text-emerald-400">● Live Cloud Sync</span></p>
+        </div>
+      </div>
+      <div id="logoutSection" class="hidden">
+        <button onclick="logout()" class="text-xs px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 transition">
+          Log Out
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Body -->
+  <main class="max-w-4xl mx-auto px-4 py-8 w-full flex-grow">
+    
+    <!-- Login Screen -->
+    <div id="loginView" class="max-w-md mx-auto">
+      <div class="bg-slate-800/80 border border-slate-700/70 rounded-2xl p-6 sm:p-8 shadow-xl">
+        <div class="text-center mb-6">
+          <div class="w-12 h-12 bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 rounded-full flex items-center justify-center mx-auto mb-3 text-xl">
+            📱
+          </div>
+          <h2 class="text-xl font-bold text-white">Member Login</h2>
+          <p class="text-xs text-slate-400 mt-1">Apna WhatsApp Number enter karein taake aapke assigned members load ho sakein.</p>
+        </div>
+
+        <form onsubmit="handleLogin(event)" class="space-y-4">
+          <div>
+            <label class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1.5">
+              WhatsApp Number
+            </label>
+            <input
+              type="text"
+              id="phoneInput"
+              required
+              placeholder="03001234567 ya 923001234567"
+              class="w-full px-4 py-3 rounded-xl bg-slate-900 border border-slate-700 text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 text-sm transition"
+            />
+          </div>
+
+          <button
+            type="submit"
+            class="w-full py-3 px-4 bg-indigo-600 hover:bg-indigo-500 active:scale-[0.99] text-white font-semibold rounded-xl text-sm transition shadow-lg shadow-indigo-600/30 flex items-center justify-center space-x-2"
+          >
+            <span>Access My Assigned Contacts</span>
+            <span>→</span>
+          </button>
+        </form>
+
+        <div id="loginError" class="hidden mt-4 p-3 rounded-lg bg-red-950/60 border border-red-800/50 text-red-300 text-xs text-center"></div>
+      </div>
+    </div>
+
+    <!-- Dashboard View -->
+    <div id="dashboardView" class="hidden space-y-6">
+      <div class="bg-slate-800/80 border border-slate-700/70 rounded-2xl p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <span class="text-xs font-semibold px-2.5 py-1 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">
+            Active Member
+          </span>
+          <h2 id="loggedInUserName" class="text-xl font-bold text-white mt-2">Member Name</h2>
+          <p id="loggedInUserPhone" class="text-xs text-slate-400 font-mono">0300XXXXXXX</p>
+        </div>
+        <div class="bg-slate-900/80 px-5 py-3 rounded-xl border border-slate-700 text-left sm:text-right">
+          <div class="text-xs text-slate-400">Total Assigned Contacts</div>
+          <div id="totalAssignedCount" class="text-2xl font-black text-indigo-400">0</div>
+        </div>
+      </div>
+
+      <div class="bg-indigo-950/40 border border-indigo-900/60 rounded-xl p-4 text-xs text-indigo-200 leading-relaxed">
+        <p class="font-semibold text-indigo-100 mb-1">📌 Instructions:</p>
+        <p>1. <b>"Direct WhatsApp"</b> dabane se Google Form ke link ke sath pre-filled message open ho jayega.</p>
+        <p>2. Jab target member form submit kar de, yahan <b>"Mark Done ✓"</b> par click kar dein (Yeh real-time Admin ko update ho jayega).</p>
+      </div>
+
+      <div class="space-y-3" id="contactsContainer"></div>
+    </div>
+
+  </main>
+
+  <footer class="border-t border-slate-800/60 py-4 text-center text-xs text-slate-500">
+    Automated Delegation System • Firebase Real-time Synced
+  </footer>
+
+  <!-- Firebase Modular Setup -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-app.js";
+    import { getFirestore, doc, onSnapshot, setDoc } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyAVsKE7FS1riBuMiyLEr-CLV-bACsnWnGI",
+      authDomain: "wisdom-task-assign.firebaseapp.com",
+      projectId: "wisdom-task-assign",
+      storageBucket: "wisdom-task-assign.firebasestorage.app",
+      messagingSenderId: "904425836718",
+      appId: "1:904425836718:web:afb68d30ad91bcc7079d3f",
+      measurementId: "G-JMC7RJV82Z"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    const GOOGLE_FORM_URL = "https://docs.google.com/forms/d/e/1FAIpQLScP_729Z0g5_qf7jYyE_example/viewform";
+    const VERIFIED_MEMBERS = [
+      { "phone": "03154222065", "name": "Ubaid Ur Rehman" },
+      { "phone": "03004412807", "name": "Abdullah Jamil" },
+      { "phone": "03361118331", "name": "Saad Ul Iman" },
+      { "phone": "03264496223", "name": "Muhammad Awais" },
+      { "phone": "03006308231", "name": "Muhammad Salman Safdar" },
+      { "phone": "03187177046", "name": "Muhammad Zain Ahmad" },
+      { "phone": "03484587399", "name": "Hassan Shahbaz" },
+      { "phone": "03328530697", "name": "Muhammad Hassaan" },
+      { "phone": "03214784033", "name": "Abdullah Khalid" },
+      { "phone": "030035238753", "name": "Hafiz Rizwan Ahmad" },
+      { "phone": "03196990258", "name": "Muhammad Kaif Raza" },
+      { "phone": "03294852466", "name": "Muhammad Umair Shafique" },
+      { "phone": "03095532211", "name": "Ali" },
+      { "phone": "03007933327", "name": "Abubakar Rehman Raf Raf" },
+      { "phone": "03214148953", "name": "Fahad Naeem" },
+      { "phone": "03444113519", "name": "Umerzaviaar" },
+      { "phone": "03703767178", "name": "Mian Ebaad Ahmed" },
+      { "phone": "03039650124", "name": "Mian Ahmed hassan" },
+      { "phone": "03328184677", "name": "Abdul Rafay" },
+      { "phone": "03278609050", "name": "Salman Faisal Hayee" },
+      { "phone": "03497546076", "name": "MUHAMMAD UMAR" },
+      { "phone": "03365451987", "name": "Abdul Aahad" },
+      { "phone": "03397936267", "name": "Faaz Khan" },
+      { "phone": "03197272183", "name": "Muhammad Zaid" },
+      { "phone": "03005807562", "name": "Zia ullah Zafar" },
+      { "phone": "03018499981", "name": "Syed Taha Gillani" },
+      { "phone": "03274690008", "name": "Muzamil Moqeem" },
+      { "phone": "03397861737", "name": "muhammad saad han" }
+    ];
+
+    let ASSIGNED_DATA = [
+      { "id": 1, "name": "Abdulah Asif Wisdom", "phone": "03281486866", "assignedTo": "03154222065", "assigneeName": "Ubaid Ur Rehman", "status": "pending" },
+      { "id": 2, "name": "Abdullah CR", "phone": "03248083268", "assignedTo": "03004412807", "assigneeName": "Abdullah Jamil", "status": "pending" },
+      { "id": 3, "name": "Afnan Imtiaz", "phone": "03314969358", "assignedTo": "03361118331", "assigneeName": "Saad Ul Iman", "status": "pending" },
+      { "id": 4, "name": "Afzaal Sb Wisdom Vice", "phone": "03257460582", "assignedTo": "03264496223", "assigneeName": "Muhammad Awais", "status": "pending" },
+      { "id": 5, "name": "Ali Hayat", "phone": "03274875479", "assignedTo": "03006308231", "assigneeName": "Muhammad Salman Safdar", "status": "pending" },
+      { "id": 6, "name": "Arham Naqee", "phone": "03332858766", "assignedTo": "03187177046", "assigneeName": "Muhammad Zain Ahmad", "status": "pending" },
+      { "id": 7, "name": "Fahad Pgc", "phone": "03000970026", "assignedTo": "03484587399", "assigneeName": "Hassan Shahbaz", "status": "pending" },
+      { "id": 8, "name": "Food Bank", "phone": "03004515536", "assignedTo": "03328530697", "assigneeName": "Muhammad Hassaan", "status": "pending" },
+      { "id": 9, "name": "(Hadith) Dawood Saleh Khan", "phone": "03136446936", "assignedTo": "03214784033", "assigneeName": "Abdullah Khalid", "status": "pending" },
+      { "id": 10, "name": "Hadi Malik", "phone": "03066745048", "assignedTo": "030035238753", "assigneeName": "Hafiz Rizwan Ahmad", "status": "pending" },
+      { "id": 11, "name": "Husnain Mutaza Pgc", "phone": "03064273793", "assignedTo": "03196990258", "assigneeName": "Muhammad Kaif Raza", "status": "pending" },
+      { "id": 12, "name": "Ibrahim Rehmat Wisdom", "phone": "03284793847", "assignedTo": "03294852466", "assigneeName": "Muhammad Umair Shafique", "status": "pending" },
+      { "id": 13, "name": "Irtaza Sohail Pgc", "phone": "03244955422", "assignedTo": "03095532211", "assigneeName": "Ali", "status": "pending" },
+      { "id": 14, "name": "Moeez Ahmad", "phone": "03213486669", "assignedTo": "03007933327", "assigneeName": "Abubakar Rehman Raf Raf", "status": "pending" },
+      { "id": 15, "name": "Mustafa Ali", "phone": "03353110206", "assignedTo": "03214148953", "assigneeName": "Fahad Naeem", "status": "pending" },
+      { "id": 16, "name": "Noor Shery Pgc", "phone": "03005625891", "assignedTo": "03444113519", "assigneeName": "Umerzaviaar", "status": "pending" },
+      { "id": 17, "name": "P (Hadith) Saad (Ali)", "phone": "03314055033", "assignedTo": "03703767178", "assigneeName": "Mian Ebaad Ahmed", "status": "pending" },
+      { "id": 18, "name": "Rizwan Ahmad (Wisdom)", "phone": "03035237753", "assignedTo": "03039650124", "assigneeName": "Mian Ahmed hassan", "status": "pending" },
+      { "id": 19, "name": "Saad Bhai Wisdom", "phone": "03059619834", "assignedTo": "03328184677", "assigneeName": "Abdul Rafay", "status": "pending" },
+      { "id": 20, "name": "Sir Ali Akbar", "phone": "03004516495", "assignedTo": "03278609050", "assigneeName": "Salman Faisal Hayee", "status": "pending" },
+      { "id": 21, "name": "Talha Pgc Matiullah MEB-01", "phone": "03240698389", "assignedTo": "03497546076", "assigneeName": "MUHAMMAD UMAR", "status": "pending" },
+      { "id": 22, "name": "@wisdominstitute.pak", "phone": "03004516944", "assignedTo": "03365451987", "assigneeName": "Abdul Aahad", "status": "pending" },
+      { "id": 23, "name": "Wisdom Mian Fahad", "phone": "03046666721", "assignedTo": "03397936267", "assigneeName": "Faaz Khan", "status": "pending" },
+      { "id": 24, "name": "Haziq Rashid", "phone": "03174226539", "assignedTo": "03197272183", "assigneeName": "Muhammad Zaid", "status": "pending" },
+      { "id": 25, "name": "Ruman", "phone": "03013628386", "assignedTo": "03005807562", "assigneeName": "Zia ullah Zafar", "status": "pending" },
+      { "id": 26, "name": "Хузайفا", "phone": "03279414005", "assignedTo": "03018499981", "assigneeName": "Syed Taha Gillani", "status": "pending" },
+      { "id": 27, "name": "حمزہ", "phone": "03124110513", "assignedTo": "03274690008", "assigneeName": "Muzamil Moqeem", "status": "pending" },
+      { "id": 28, "name": "Unknown", "phone": "03311437976", "assignedTo": "03397861737", "assigneeName": "muhammad saad han", "status": "pending" },
+      { "id": 29, "name": "Unknown", "phone": "03233441142", "assignedTo": "03154222065", "assigneeName": "Ubaid Ur Rehman", "status": "pending" },
+      { "id": 30, "name": "Unknown", "phone": "03044295351", "assignedTo": "03004412807", "assigneeName": "Abdullah Jamil", "status": "pending" },
+      { "id": 31, "name": "Unknown", "phone": "03180474824", "assignedTo": "03361118331", "assigneeName": "Saad Ul Iman", "status": "pending" },
+      { "id": 32, "name": "Unknown", "phone": "03244197434", "assignedTo": "03264496223", "assigneeName": "Muhammad Awais", "status": "pending" },
+      { "id": 33, "name": "Unknown", "phone": "03156640675", "assignedTo": "03006308231", "assigneeName": "Muhammad Salman Safdar", "status": "pending" },
+      { "id": 34, "name": "Unknown", "phone": "03034707404", "assignedTo": "03187177046", "assigneeName": "Muhammad Zain Ahmad", "status": "pending" },
+      { "id": 35, "name": "Unknown", "phone": "03004511808", "assignedTo": "03484587399", "assigneeName": "Hassan Shahbaz", "status": "pending" },
+      { "id": 36, "name": "Unknown", "phone": "03024682930", "assignedTo": "03328530697", "assigneeName": "Muhammad Hassaan", "status": "pending" },
+      { "id": 37, "name": "Unknown", "phone": "03105915639", "assignedTo": "03214784033", "assigneeName": "Abdullah Khalid", "status": "pending" },
+      { "id": 38, "name": "Unknown", "phone": "03278032207", "assignedTo": "030035238753", "assigneeName": "Hafiz Rizwan Ahmad", "status": "pending" },
+      { "id": 39, "name": "Unknown", "phone": "03137258047", "assignedTo": "03196990258", "assigneeName": "Muhammad Kaif Raza", "status": "pending" },
+      { "id": 40, "name": "Unknown", "phone": "03140795922", "assignedTo": "03294852466", "assigneeName": "Muhammad Umair Shafique", "status": "pending" },
+      { "id": 41, "name": "Unknown", "phone": "971505031565", "assignedTo": "03095532211", "assigneeName": "Ali", "status": "pending" },
+      { "id": 42, "name": "Unknown", "phone": "03154609041", "assignedTo": "03007933327", "assigneeName": "Abubakar Rehman Raf Raf", "status": "pending" },
+      { "id": 43, "name": "Unknown", "phone": "03004514408", "assignedTo": "03214148953", "assigneeName": "Fahad Naeem", "status": "pending" },
+      { "id": 44, "name": "Unknown", "phone": "03008418287", "assignedTo": "03444113519", "assigneeName": "Umerzaviaar", "status": "pending" },
+      { "id": 45, "name": "Unknown", "phone": "03249987466", "assignedTo": "03703767178", "assigneeName": "Mian Ebaad Ahmed", "status": "pending" },
+      { "id": 46, "name": "Unknown", "phone": "03204682408", "assignedTo": "03039650124", "assigneeName": "Mian Ahmed hassan", "status": "pending" },
+      { "id": 47, "name": "Unknown", "phone": "03313300122", "assignedTo": "03328184677", "assigneeName": "Abdul Rafay", "status": "pending" },
+      { "id": 48, "name": "Unknown", "phone": "03261022282", "assignedTo": "03278609050", "assigneeName": "Salman Faisal Hayee", "status": "pending" },
+      { "id": 49, "name": "Unknown", "phone": "03009696174", "assignedTo": "03497546076", "assigneeName": "MUHAMMAD UMAR", "status": "pending" },
+      { "id": 50, "name": "Unknown", "phone": "03204663404", "assignedTo": "03365451987", "assigneeName": "Abdul Aahad", "status": "pending" },
+      { "id": 51, "name": "Unknown", "phone": "03254316062", "assignedTo": "03397936267", "assigneeName": "Faaz Khan", "status": "pending" },
+      { "id": 52, "name": "Unknown", "phone": "03294569979", "assignedTo": "03197272183", "assigneeName": "Muhammad Zaid", "status": "pending" },
+      { "id": 53, "name": "Unknown", "phone": "03086336161", "assignedTo": "03005807562", "assigneeName": "Zia ullah Zafar", "status": "pending" },
+      { "id": 54, "name": "Unknown", "phone": "03156367608", "assignedTo": "03018499981", "assigneeName": "Syed Taha Gillani", "status": "pending" },
+      { "id": 55, "name": "Unknown", "phone": "03254102637", "assignedTo": "03274690008", "assigneeName": "Muzamil Moqeem", "status": "pending" },
+      { "id": 56, "name": "Unknown", "phone": "03212099427", "assignedTo": "03397861737", "assigneeName": "muhammad saad han", "status": "pending" },
+      { "id": 57, "name": "Unknown", "phone": "03244703202", "assignedTo": "03154222065", "assigneeName": "Ubaid Ur Rehman", "status": "pending" },
+      { "id": 58, "name": "Unknown", "phone": "03175472386", "assignedTo": "03004412807", "assigneeName": "Abdullah Jamil", "status": "pending" },
+      { "id": 59, "name": "Unknown", "phone": "03079419122", "assignedTo": "03361118331", "assigneeName": "Saad Ul Iman", "status": "pending" },
+      { "id": 60, "name": "Unknown", "phone": "03048666479", "assignedTo": "03264496223", "assigneeName": "Muhammad Awais", "status": "pending" },
+      { "id": 61, "name": "Unknown", "phone": "03261439146", "assignedTo": "03006308231", "assigneeName": "Muhammad Salman Safdar", "status": "pending" },
+      { "id": 62, "name": "Unknown", "phone": "03264322326", "assignedTo": "03187177046", "assigneeName": "Muhammad Zain Ahmad", "status": "pending" },
+      { "id": 63, "name": "Unknown", "phone": "03260606837", "assignedTo": "03484587399", "assigneeName": "Hassan Shahbaz", "status": "pending" },
+      { "id": 64, "name": "Unknown", "phone": "03164782093", "assignedTo": "03328530697", "assigneeName": "Muhammad Hassaan", "status": "pending" },
+      { "id": 65, "name": "Unknown", "phone": "03079588658", "assignedTo": "03214784033", "assigneeName": "Abdullah Khalid", "status": "pending" },
+      { "id": 66, "name": "Unknown", "phone": "03009482408", "assignedTo": "030035238753", "assigneeName": "Hafiz Rizwan Ahmad", "status": "pending" },
+      { "id": 67, "name": "Unknown", "phone": "03008185713", "assignedTo": "03196990258", "assigneeName": "Muhammad Kaif Raza", "status": "pending" },
+      { "id": 68, "name": "Unknown", "phone": "03204437544", "assignedTo": "03294852466", "assigneeName": "Muhammad Umair Shafique", "status": "pending" },
+      { "id": 69, "name": "Unknown", "phone": "03140875605", "assignedTo": "03095532211", "assigneeName": "Ali", "status": "pending" },
+      { "id": 70, "name": "Unknown", "phone": "03236996597", "assignedTo": "03007933327", "assigneeName": "Abubakar Rehman Raf Raf", "status": "pending" },
+      { "id": 71, "name": "Unknown", "phone": "03213906257", "assignedTo": "03214148953", "assigneeName": "Fahad Naeem", "status": "pending" },
+      { "id": 72, "name": "Unknown", "phone": "03499214468", "assignedTo": "03444113519", "assigneeName": "Umerzaviaar", "status": "pending" },
+      { "id": 73, "name": "Unknown", "phone": "03338685154", "assignedTo": "03703767178", "assigneeName": "Mian Ebaad Ahmed", "status": "pending" },
+      { "id": 74, "name": "Unknown", "phone": "03214852212", "assignedTo": "03039650124", "assigneeName": "Mian Ahmed hassan", "status": "pending" },
+      { "id": 75, "name": "Unknown", "phone": "03314319248", "assignedTo": "03328184677", "assigneeName": "Abdul Rafay", "status": "pending" },
+      { "id": 76, "name": "Unknown", "phone": "03034368098", "assignedTo": "03278609050", "assigneeName": "Salman Faisal Hayee", "status": "pending" },
+      { "id": 77, "name": "Unknown", "phone": "03117371013", "assignedTo": "03497546076", "assigneeName": "MUHAMMAD UMAR", "status": "pending" },
+      { "id": 78, "name": "Unknown", "phone": "03269414322", "assignedTo": "03365451987", "assigneeName": "Abdul Aahad", "status": "pending" },
+      { "id": 79, "name": "Unknown", "phone": "03355869667", "assignedTo": "03397936267", "assigneeName": "Faaz Khan", "status": "pending" },
+      { "id": 80, "name": "Unknown", "phone": "03215277098", "assignedTo": "03197272183", "assigneeName": "Muhammad Zaid", "status": "pending" },
+      { "id": 81, "name": "Unknown", "phone": "03321441438", "assignedTo": "03005807562", "assigneeName": "Zia ullah Zafar", "status": "pending" },
+      { "id": 82, "name": "Unknown", "phone": "03224301912", "assignedTo": "03018499981", "assigneeName": "Syed Taha Gillani", "status": "pending" },
+      { "id": 83, "name": "Unknown", "phone": "03289465115", "assignedTo": "03274690008", "assigneeName": "Muzamil Moqeem", "status": "pending" },
+      { "id": 84, "name": "Unknown", "phone": "03164292616", "assignedTo": "03397861737", "assigneeName": "muhammad saad han", "status": "pending" },
+      { "id": 85, "name": "Unknown", "phone": "03445261576", "assignedTo": "03154222065", "assigneeName": "Ubaid Ur Rehman", "status": "pending" },
+      { "id": 86, "name": "Unknown", "phone": "03711458840", "assignedTo": "03004412807", "assigneeName": "Abdullah Jamil", "status": "pending" },
+      { "id": 87, "name": "Unknown", "phone": "03197656885", "assignedTo": "03361118331", "assigneeName": "Saad Ul Iman", "status": "pending" },
+      { "id": 88, "name": "Unknown", "phone": "03166076692", "assignedTo": "03264496223", "assigneeName": "Muhammad Awais", "status": "pending" },
+      { "id": 89, "name": "Unknown", "phone": "03124444720", "assignedTo": "03006308231", "assigneeName": "Muhammad Salman Safdar", "status": "pending" },
+      { "id": 90, "name": "Unknown", "phone": "03194847544", "assignedTo": "03187177046", "assigneeName": "Muhammad Zain Ahmad", "status": "pending" },
+      { "id": 91, "name": "Unknown", "phone": "03014372273", "assignedTo": "03484587399", "assigneeName": "Hassan Shahbaz", "status": "pending" },
+      { "id": 92, "name": "Unknown", "phone": "03030608706", "assignedTo": "03328530697", "assigneeName": "Muhammad Hassaan", "status": "pending" },
+      { "id": 93, "name": "Unknown", "phone": "03207440727", "assignedTo": "03214784033", "assigneeName": "Abdullah Khalid", "status": "pending" },
+      { "id": 94, "name": "Unknown", "phone": "03014479434", "assignedTo": "030035238753", "assigneeName": "Hafiz Rizwan Ahmad", "status": "pending" },
+      { "id": 95, "name": "Unknown", "phone": "03265942276", "assignedTo": "03196990258", "assigneeName": "Muhammad Kaif Raza", "status": "pending" },
+      { "id": 96, "name": "Unknown", "phone": "03424318879", "assignedTo": "03294852466", "assigneeName": "Muhammad Umair Shafique", "status": "pending" },
+      { "id": 97, "name": "Unknown", "phone": "03298829430", "assignedTo": "03095532211", "assigneeName": "Ali", "status": "pending" }
+    ];
+    let currentUser = null;
+
+    // Real-time Firestore listener for status sync
+    const statusDocRef = doc(db, "delegation", "tasks_status");
+    onSnapshot(statusDocRef, (snap) => {
+      if (snap.exists()) {
+        const liveMap = snap.data();
+        ASSIGNED_DATA.forEach(item => {
+          if (liveMap[item.id] !== undefined) {
+            item.status = liveMap[item.id];
+          }
+        });
+        if (currentUser) renderDashboard();
+      }
+    });
+
+    function cleanPhone(num) {
+      if (!num) return "";
+      let cleaned = num.toString().replace(/[^0-9]/g, "");
+      if (cleaned.startsWith("92")) cleaned = "0" + cleaned.slice(2);
+      return cleaned;
+    }
+
+    function formatWaLink(num, name) {
+      let cleaned = num.toString().replace(/[^0-9]/g, "");
+      if (cleaned.startsWith("0")) cleaned = "92" + cleaned.slice(1);
+      const msg = `Assalamu Alaikum ${name},\n\nHamari team records update ho rahe hain. Please 2 minute nikal kar ye official form fill kar dein taake aapka data record mein ajaye:\n\n👉 Form Link: ${GOOGLE_FORM_URL}\n\nFill karne ke baad yahan reply zaroor karein. Shukriya!`;
+      return `https://wa.me/${cleaned}?text=${encodeURIComponent(msg)}`;
+    }
+
+    window.handleLogin = function(e) {
+      e.preventDefault();
+      const input = document.getElementById("phoneInput").value;
+      const cleanedInput = cleanPhone(input);
+
+      const user = VERIFIED_MEMBERS.find(m => {
+        const cp = cleanPhone(m.phone);
+        return cp === cleanedInput || (cp.length > 8 && cleanedInput.length > 8 && (cp.endsWith(cleanedInput.slice(-8)) || cleanedInput.endsWith(cp.slice(-8))));
+      });
+
+      if (!user) {
+        const err = document.getElementById("loginError");
+        err.textContent = "Yeh WhatsApp number hamari verified 28 members list mein nahi mila. Please correct number enter karein.";
+        err.classList.remove("hidden");
+        return;
+      }
+
+      currentUser = user;
+      document.getElementById("loginError").classList.add("hidden");
+      document.getElementById("loginView").classList.add("hidden");
+      document.getElementById("dashboardView").classList.remove("hidden");
+      document.getElementById("logoutSection").classList.remove("hidden");
+
+      renderDashboard();
+    };
+
+    window.logout = function() {
+      currentUser = null;
+      document.getElementById("loginView").classList.remove("hidden");
+      document.getElementById("dashboardView").classList.add("hidden");
+      document.getElementById("logoutSection").classList.add("hidden");
+      document.getElementById("phoneInput").value = "";
+    };
+
+    window.toggleStatus = async function(id) {
+      const item = ASSIGNED_DATA.find(x => x.id === id);
+      if (item) {
+        const newStatus = item.status === "completed" ? "pending" : "completed";
+        item.status = newStatus;
+        renderDashboard();
+
+        try {
+          await setDoc(statusDocRef, { [id]: newStatus }, { merge: true });
+        } catch (err) {
+          console.error("Firebase update error:", err);
+        }
+      }
+    };
+
+    function renderDashboard() {
+      document.getElementById("loggedInUserName").textContent = currentUser.name;
+      document.getElementById("loggedInUserPhone").textContent = currentUser.phone;
+
+      const userClean = cleanPhone(currentUser.phone);
+      const myContacts = ASSIGNED_DATA.filter(x => {
+        const ac = cleanPhone(x.assignedTo);
+        return ac === userClean || (ac.length > 8 && userClean.length > 8 && (ac.endsWith(userClean.slice(-8)) || userClean.endsWith(ac.slice(-8))));
+      });
+
+      document.getElementById("totalAssignedCount").textContent = myContacts.length;
+      const container = document.getElementById("contactsContainer");
+      container.innerHTML = "";
+
+      if (myContacts.length === 0) {
+        container.innerHTML = `<div class="bg-slate-800/60 p-6 rounded-xl text-center text-slate-400 text-sm border border-slate-700">Aapko abhi tak koi contact assign nahi hua.</div>`;
+        return;
+      }
+
+      myContacts.forEach((contact, idx) => {
+        const isCompleted = contact.status === "completed";
+        const card = document.createElement("div");
+        
+        card.className = `p-4 sm:p-5 rounded-2xl border transition flex flex-col sm:flex-row sm:items-center justify-between gap-4 ${
+          isCompleted 
+            ? "bg-emerald-950/20 border-emerald-800/40 opacity-80" 
+            : "bg-slate-800/90 border-slate-700/80 shadow-md hover:border-slate-600"
+        }`;
+
+        card.innerHTML = `
+          <div class="flex items-center space-x-3.5">
+            <div class="w-9 h-9 rounded-xl flex items-center justify-center font-bold text-xs ${
+              isCompleted ? "bg-emerald-500/20 text-emerald-300" : "bg-indigo-500/20 text-indigo-300"
+            }">
+              #${idx + 1}
+            </div>
+            <div>
+              <div class="font-bold text-white text-base flex items-center gap-2">
+                ${contact.name}
+                ${isCompleted ? '<span class="text-[10px] bg-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded-full border border-emerald-500/30">Completed</span>' : ''}
+              </div>
+              <div class="text-xs text-slate-400 font-mono mt-0.5">${contact.phone}</div>
+            </div>
+          </div>
+
+          <div class="flex items-center space-x-2 w-full sm:w-auto">
+            <a
+              href="${formatWaLink(contact.phone, contact.name)}"
+              target="_blank"
+              class="flex-1 sm:flex-none text-center px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs transition shadow-md shadow-emerald-600/20 flex items-center justify-center space-x-1.5"
+            >
+              <span>💬 Direct WhatsApp</span>
+            </a>
+            <button
+              onclick="toggleStatus(${contact.id})"
+              class="px-3 py-2.5 rounded-xl border text-xs font-semibold transition ${
+                isCompleted 
+                  ? "bg-slate-800 text-slate-400 border-slate-700 hover:bg-slate-700" 
+                  : "bg-slate-700 text-slate-200 border-slate-600 hover:bg-slate-600"
+              }"
+            >
+              ${isCompleted ? "Mark Pending" : "Mark Done ✓"}
+            </button>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
+  </script>
+</body>
+</html>
